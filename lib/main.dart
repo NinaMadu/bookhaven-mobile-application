@@ -1,5 +1,8 @@
 import 'package:bookshop/pages/home.dart';
 import 'package:flutter/material.dart';
+import 'package:bookshop/pages/loginpage.dart';
+import 'package:bookshop/pages/signuppage.dart';
+import 'package:bookshop/pages/welcomepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,12 +11,17 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(fontFamily: 'Poppins'),
-        home: HomePage());
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomePage(),
+        '/signup': (context) => const SignupPage(),
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => HomePage(), // Add route for HomePage
+      },
+    );
   }
 }
