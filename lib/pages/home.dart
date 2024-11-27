@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/bookitem.dart';
 import 'package:bookshop/pages/profile.dart';
 import 'package:flutter/material.dart';
 
@@ -19,24 +20,52 @@ class _HomePageState extends State<HomePage> {
 
   final Map<String, List<Map<String, String>>> books = {
     "Fiction": [
-      {"title": "The Great Gatsby", "price": "\$10", "image": "assets/icons/images/book.png"},
-      {"title": "1984", "price": "\$12", "image": "assets/icons/images/book.png"},
+      {
+        "title": "The Great Gatsby",
+        "price": "\$10",
+        "image": "assets/icons/images/book.png"
+      },
+      {
+        "title": "1984",
+        "price": "\$12",
+        "image": "assets/icons/images/book.png"
+      },
     ],
     "Non-fiction": [
       {"title": "Sapiens", "price": "\$15", "image": "assets/nonfiction1.jpg"},
       {"title": "Educated", "price": "\$14", "image": "assets/nonfiction2.jpg"},
     ],
     "Science": [
-      {"title": "A Brief History of Time", "price": "\$18", "image": "assets/science1.jpg"},
-      {"title": "The Selfish Gene", "price": "\$16", "image": "assets/science2.jpg"},
+      {
+        "title": "A Brief History of Time",
+        "price": "\$18",
+        "image": "assets/science1.jpg"
+      },
+      {
+        "title": "The Selfish Gene",
+        "price": "\$16",
+        "image": "assets/science2.jpg"
+      },
     ],
     "Mystery": [
       {"title": "Gone Girl", "price": "\$11", "image": "assets/mystery1.jpg"},
-      {"title": "Sherlock Holmes", "price": "\$13", "image": "assets/mystery2.jpg"},
+      {
+        "title": "Sherlock Holmes",
+        "price": "\$13",
+        "image": "assets/mystery2.jpg"
+      },
     ],
     "Romance": [
-      {"title": "Pride and Prejudice", "price": "\$9", "image": "assets/romance1.jpg"},
-      {"title": "The Notebook", "price": "\$10", "image": "assets/romance2.jpg"},
+      {
+        "title": "Pride and Prejudice",
+        "price": "\$9",
+        "image": "assets/romance1.jpg"
+      },
+      {
+        "title": "The Notebook",
+        "price": "\$10",
+        "image": "assets/romance2.jpg"
+      },
     ],
   };
 
@@ -123,9 +152,10 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.grey.shade200,
+                      color: isSelected ? const Color.fromARGB(255, 43, 118, 178) : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
@@ -169,7 +199,8 @@ class _HomePageState extends State<HomePage> {
                 itemCount: books[selectedCategory]?.length ?? 0,
                 itemBuilder: (context, index) {
                   final book = books[selectedCategory]![index];
-                  return bookCard(book["title"]!, book["image"]!, book["price"]!);
+                  return bookCard(
+                      book["title"]!, book["image"]!, book["price"]!);
                 },
               ),
             ),
@@ -179,7 +210,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: const Color.fromARGB(255, 17, 102, 172),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
@@ -247,7 +278,8 @@ class _HomePageState extends State<HomePage> {
         alignment: Alignment.bottomLeft,
         child: Text(
           title,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -283,10 +315,39 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               price,
-              style: const TextStyle(color: Colors.blue),
+              style: const TextStyle(color: Color.fromARGB(255, 44, 114, 171)),
             ),
           ),
-          
+          // View Book Button
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookItemPage(
+                      title: title,
+                      image: image,
+                      price: price,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                "View Book",
+                style: const TextStyle(
+                  color: Colors.white, // Text color
+                  fontWeight: FontWeight.normal, // Text weight
+                  fontSize: 16, // Optional: Text size
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    const Color.fromARGB(255, 75, 180, 199), // Button color
+              ),
+            ),
+          ),
         ],
       ),
     );
