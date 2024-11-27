@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "1024607162438",
-    "project_id": "bookshop-80fe3",
-    "storage_bucket": "bookshop-80fe3.firebasestorage.app"
+    "project_number": "321661847488",
+    "project_id": "book-haven-b0e08",
+    "storage_bucket": "book-haven-b0e08.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1024607162438:android:8fa95343d9ad1bcd403a47",
+        "mobilesdk_app_id": "1:321661847488:android:3ab6ac23643359d0872a25",
         "android_client_info": {
-          "package_name": "com.company.bookshop"
+          "package_name": "com.example.bookshop"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDFLHyvUHsSZDdmhY-mfb1B7fgU05o7_fQ"
+          "current_key": "AIzaSyCc9k95R2amWr0sj8-TnJT_46ETgF0bJU4"
         }
       ],
       "services": {
