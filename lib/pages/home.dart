@@ -1,328 +1,205 @@
-import 'package:bookshop/models/category_model.dart';
-import 'package:bookshop/models/diet_model.dart';
-import 'package:bookshop/models/popular_model.dart';
+import 'package:bookshop/pages/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  List<CategoryModel> categories = [];
-  List<DietModel> diets = [];
-  List<PopularDietsModel> popularDiets = [];
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-  void _getInitialInfo() {
-    categories = CategoryModel.getCategories();
-    diets = DietModel.getDiets();
-    popularDiets = PopularDietsModel.getPopularDiets();
+class _HomePageState extends State<HomePage> {
+  final List<String> categories = [
+    "Fiction",
+    "Non-fiction",
+    "Science",
+    "Mystery",
+    "Romance",
+  ];
+
+  final Map<String, List<Map<String, String>>> books = {
+    "Fiction": [
+      {"title": "The Great Gatsby", "price": "\$10", "image": "assets/icons/images/book.png"},
+      {"title": "1984", "price": "\$12", "image": "assets/icons/images/book.png"},
+    ],
+    "Non-fiction": [
+      {"title": "Sapiens", "price": "\$15", "image": "assets/nonfiction1.jpg"},
+      {"title": "Educated", "price": "\$14", "image": "assets/nonfiction2.jpg"},
+    ],
+    "Science": [
+      {"title": "A Brief History of Time", "price": "\$18", "image": "assets/science1.jpg"},
+      {"title": "The Selfish Gene", "price": "\$16", "image": "assets/science2.jpg"},
+    ],
+    "Mystery": [
+      {"title": "Gone Girl", "price": "\$11", "image": "assets/mystery1.jpg"},
+      {"title": "Sherlock Holmes", "price": "\$13", "image": "assets/mystery2.jpg"},
+    ],
+    "Romance": [
+      {"title": "Pride and Prejudice", "price": "\$9", "image": "assets/romance1.jpg"},
+      {"title": "The Notebook", "price": "\$10", "image": "assets/romance2.jpg"},
+    ],
+  };
+
+  final List<Map<String, String>> offers = [
+    {"title": "Buy 1 Get 1 Free", "image": "assets/offer1.jpg"},
+    {"title": "20% Off on Bestsellers", "image": "assets/offer2.jpg"},
+    {"title": "Flat \$5 Off on Science Books", "image": "assets/offer3.jpg"},
+  ];
+
+  String selectedCategory = "Fiction"; // Default category
+
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    const Center(child: Text("Home Page Content")),
+    const Center(child: Text("Search Page Content")),
+    const Center(child: Text("Favorites Page Content")),
+    const ProfilePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigate to the corresponding page when the Profile tab is selected
+    if (index == 3) {
+      // Navigate to the Profile Page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    _getInitialInfo();
     return Scaffold(
       appBar: appBar(),
-      backgroundColor: Colors.white,
-      body: ListView(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _searchField(),
-          const SizedBox(
-            height: 40,
+          // Offers Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: const Text(
+              "Special Offers",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
           ),
-          _categoriesSection(),
-          const SizedBox(
-            height: 40,
+          SizedBox(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: offers.length,
+              itemBuilder: (context, index) {
+                final offer = offers[index];
+                return offerCard(offer["title"]!, offer["image"]!);
+              },
+            ),
           ),
-          _dietSection(),
-          const SizedBox(
-            height: 40,
+
+          // Categories Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: const Text(
+              "Categories",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  'Popular',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              ListView.separated(
-                itemCount: popularDiets.length,
-                shrinkWrap: true,
-                separatorBuilder: (context, index) => const SizedBox(
-                  height: 25,
-                ),
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                itemBuilder: (context, index) {
-                  return Container(
-                    height: 100,
+          SizedBox(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final isSelected = category == selectedCategory;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                        color: popularDiets[index].boxIsSelected
-                            ? Colors.white
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: popularDiets[index].boxIsSelected
-                            ? [
-                                BoxShadow(
-                                    color: const Color(0xff1D1617)
-                                        .withOpacity(0.07),
-                                    offset: const Offset(0, 10),
-                                    blurRadius: 40,
-                                    spreadRadius: 0)
-                              ]
-                            : []),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset(
-                          popularDiets[index].iconPath,
-                          width: 65,
-                          height: 65,
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              popularDiets[index].name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                  fontSize: 16),
-                            ),
-                            Text(
-                              popularDiets[index].level +
-                                  ' | ' +
-                                  popularDiets[index].duration +
-                                  ' | ' +
-                                  popularDiets[index].calorie,
-                              style: const TextStyle(
-                                  color: Color(0xff7B6F72),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: SvgPicture.asset(
-                            'assets/icons/button.svg',
-                            width: 30,
-                            height: 30,
-                          ),
-                        )
-                      ],
+                      color: isSelected ? Colors.blue : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  );
-                },
-              )
-            ],
+                    child: Center(
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-          const SizedBox(
-            height: 40,
+          const SizedBox(height: 16),
+
+          // Books Related to the Selected Category
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              "$selectedCategory Books",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Wrap the book grid inside a SingleChildScrollView to make it scrollable
+          Expanded(
+            child: SingleChildScrollView(
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.7,
+                ),
+                itemCount: books[selectedCategory]?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final book = books[selectedCategory]![index];
+                  return bookCard(book["title"]!, book["image"]!, book["price"]!);
+                },
+              ),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Column _dietSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Text(
-            'Recommendation\nfor Diet',
-            style: TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        SizedBox(
-          height: 240,
-          child: ListView.separated(
-            itemBuilder: (context, index) {
-              return Container(
-                width: 210,
-                decoration: BoxDecoration(
-                    color: diets[index].boxColor.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SvgPicture.asset(diets[index].iconPath),
-                    Column(
-                      children: [
-                        Text(
-                          diets[index].name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                              fontSize: 16),
-                        ),
-                        Text(
-                          '${diets[index].level} | ${diets[index].duration} | ${diets[index].calorie}',
-                          style: const TextStyle(
-                              color: Color(0xff7B6F72),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 45,
-                      width: 130,
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            diets[index].viewIsSelected
-                                ? const Color(0xff9DCEFF)
-                                : Colors.transparent,
-                            diets[index].viewIsSelected
-                                ? const Color(0xff92A3FD)
-                                : Colors.transparent
-                          ]),
-                          borderRadius: BorderRadius.circular(50)),
-                      child: Center(
-                        child: Text(
-                          'View',
-                          style: TextStyle(
-                              color: diets[index].viewIsSelected
-                                  ? Colors.white
-                                  : const Color(0xffC58BF2),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            },
-            separatorBuilder: (context, index) => const SizedBox(
-              width: 25,
-            ),
-            itemCount: diets.length,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 20, right: 20),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
           ),
-        )
-      ],
-    );
-  }
-
-  Column _categoriesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Text(
-            'Category',
-            style: TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
           ),
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        SizedBox(
-          height: 120,
-          child: ListView.separated(
-            itemCount: categories.length,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            separatorBuilder: (context, index) => const SizedBox(
-              width: 25,
-            ),
-            itemBuilder: (context, index) {
-              return Container(
-                width: 100,
-                decoration: BoxDecoration(
-                    color: categories[index].boxColor.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SvgPicture.asset(categories[index].iconPath),
-                      ),
-                    ),
-                    Text(
-                      categories[index].name,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                          fontSize: 14),
-                    )
-                  ],
-                ),
-              );
-            },
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
-        )
-      ],
-    );
-  }
-
-  Container _searchField() {
-    return Container(
-      margin: const EdgeInsets.only(top: 40, left: 20, right: 20),
-      decoration: BoxDecoration(boxShadow: [
-        BoxShadow(
-            color: const Color(0xff1D1617).withOpacity(0.11),
-            blurRadius: 40,
-            spreadRadius: 0.0)
-      ]),
-      child: TextField(
-        decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.all(15),
-            hintText: 'Search Pancake',
-            hintStyle: const TextStyle(color: Color(0xffDDDADA), fontSize: 14),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(12),
-              child: SvgPicture.asset('assets/icons/Search.svg'),
-            ),
-            suffixIcon: SizedBox(
-              width: 100,
-              child: IntrinsicHeight(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const VerticalDivider(
-                      color: Colors.black,
-                      indent: 10,
-                      endIndent: 10,
-                      thickness: 0.1,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset('assets/icons/Filter.svg'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none)),
+        ],
       ),
     );
   }
@@ -330,46 +207,87 @@ class HomePage extends StatelessWidget {
   AppBar appBar() {
     return AppBar(
       title: const Text(
-        'Breakfast',
-        style: TextStyle(
-            color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+        'Book Haven',
+        style: TextStyle(color: Colors.black),
       ),
       backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
-      leading: GestureDetector(
-        onTap: () {},
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              color: const Color(0xffF7F8F8),
-              borderRadius: BorderRadius.circular(10)),
-          child: SvgPicture.asset(
-            'assets/icons/Arrow - Left 2.svg',
-            height: 20,
-            width: 20,
-          ),
-        ),
-      ),
+      elevation: 0,
       actions: [
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            width: 37,
-            decoration: BoxDecoration(
-                color: const Color(0xffF7F8F8),
-                borderRadius: BorderRadius.circular(10)),
-            child: SvgPicture.asset(
-              'assets/icons/dots.svg',
-              height: 5,
-              width: 5,
-            ),
-          ),
+        IconButton(
+          icon: const Icon(Icons.shopping_cart, color: Colors.black),
+          onPressed: () {
+            // Navigate to cart page
+          },
         ),
       ],
+    );
+  }
+
+  Widget offerCard(String title, String image) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      width: 250,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        image: DecorationImage(
+          image: AssetImage(image),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+        ),
+        padding: const EdgeInsets.all(10),
+        alignment: Alignment.bottomLeft,
+        child: Text(
+          title,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget bookCard(String title, String image, String price) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              price,
+              style: const TextStyle(color: Colors.blue),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
