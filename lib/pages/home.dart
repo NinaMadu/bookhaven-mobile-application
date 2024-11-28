@@ -19,55 +19,88 @@ class _HomePageState extends State<HomePage> {
   ];
 
   final Map<String, List<Map<String, String>>> books = {
-    "Fiction": [
-      {
-        "title": "The Great Gatsby",
-        "price": "\$10",
-        "image": "assets/icons/images/book.png"
-      },
-      {
-        "title": "1984",
-        "price": "\$12",
-        "image": "assets/icons/images/book.png"
-      },
-    ],
-    "Non-fiction": [
-      {"title": "Sapiens", "price": "\$15", "image": "assets/nonfiction1.jpg"},
-      {"title": "Educated", "price": "\$14", "image": "assets/nonfiction2.jpg"},
-    ],
-    "Science": [
-      {
-        "title": "A Brief History of Time",
-        "price": "\$18",
-        "image": "assets/science1.jpg"
-      },
-      {
-        "title": "The Selfish Gene",
-        "price": "\$16",
-        "image": "assets/science2.jpg"
-      },
-    ],
-    "Mystery": [
-      {"title": "Gone Girl", "price": "\$11", "image": "assets/mystery1.jpg"},
-      {
-        "title": "Sherlock Holmes",
-        "price": "\$13",
-        "image": "assets/mystery2.jpg"
-      },
-    ],
-    "Romance": [
-      {
-        "title": "Pride and Prejudice",
-        "price": "\$9",
-        "image": "assets/romance1.jpg"
-      },
-      {
-        "title": "The Notebook",
-        "price": "\$10",
-        "image": "assets/romance2.jpg"
-      },
-    ],
-  };
+  "Fiction": [
+    {
+      "title": "The Great Gatsby",
+      "price": "\$10",
+      "image": "assets/icons/images/book.png",
+      "author": "F. Scott Fitzgerald",
+      "description": "A classic novel set in the Jazz Age that explores themes of wealth, love, and the American Dream."
+    },
+    {
+      "title": "1984",
+      "price": "\$12",
+      "image": "assets/icons/images/book.png",
+      "author": "George Orwell",
+      "description": "A dystopian tale that delves into totalitarianism, surveillance, and the struggle for freedom."
+    },
+  ],
+  "Non-fiction": [
+    {
+      "title": "Sapiens",
+      "price": "\$15",
+      "image": "assets/nonfiction1.jpg",
+      "author": "Yuval Noah Harari",
+      "description": "A groundbreaking exploration of the history of humankind, from the Stone Age to the modern era."
+    },
+    {
+      "title": "Educated",
+      "price": "\$14",
+      "image": "assets/nonfiction2.jpg",
+      "author": "Tara Westover",
+      "description": "A memoir of resilience and the transformative power of education in overcoming a restrictive upbringing."
+    },
+  ],
+  "Science": [
+    {
+      "title": "A Brief History of Time",
+      "price": "\$18",
+      "image": "assets/science1.jpg",
+      "author": "Stephen Hawking",
+      "description": "An iconic book that explores the mysteries of the universe, time, and black holes."
+    },
+    {
+      "title": "The Selfish Gene",
+      "price": "\$16",
+      "image": "assets/science2.jpg",
+      "author": "Richard Dawkins",
+      "description": "A groundbreaking book on evolution, presenting the gene-centered view of natural selection."
+    },
+  ],
+  "Mystery": [
+    {
+      "title": "Gone Girl",
+      "price": "\$11",
+      "image": "assets/mystery1.jpg",
+      "author": "Gillian Flynn",
+      "description": "A psychological thriller that unravels the secrets of a marriage turned sour."
+    },
+    {
+      "title": "Sherlock Holmes",
+      "price": "\$13",
+      "image": "assets/mystery2.jpg",
+      "author": "Arthur Conan Doyle",
+      "description": "The adventures of the legendary detective Sherlock Holmes and his loyal friend Dr. Watson."
+    },
+  ],
+  "Romance": [
+    {
+      "title": "Pride and Prejudice",
+      "price": "\$9",
+      "image": "assets/romance1.jpg",
+      "author": "Jane Austen",
+      "description": "A beloved romantic novel that explores themes of love, social class, and personal growth."
+    },
+    {
+      "title": "The Notebook",
+      "price": "\$10",
+      "image": "assets/romance2.jpg",
+      "author": "Nicholas Sparks",
+      "description": "A timeless love story that recounts the enduring bond between two people across the years."
+    },
+  ],
+};
+
 
   final List<Map<String, String>> offers = [
     {"title": "Buy 1 Get 1 Free", "image": "assets/offer1.jpg"},
@@ -200,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final book = books[selectedCategory]![index];
                   return bookCard(
-                      book["title"]!, book["image"]!, book["price"]!);
+                      book["title"]!, book["image"]!, book["price"]!,book["author"]!,book["description"]!);
                 },
               ),
             ),
@@ -285,7 +318,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget bookCard(String title, String image, String price) {
+  Widget bookCard(String title, String image, String price, String author, String description) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
@@ -305,7 +338,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             child: Text(
               title,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -329,7 +362,9 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => BookItemPage(
                       title: title,
                       image: image,
-                      price: price,
+                      price: price, 
+                      author: author,
+                       description: description,
                     ),
                   ),
                 );
