@@ -16,9 +16,6 @@ class ProfilePage extends StatelessWidget {
           children: [
             // Profile header with a gradient background
             Container(
-              decoration: BoxDecoration(
-              
-              ),
               height: 250,
               child: Center(
                 child: Column(
@@ -26,13 +23,14 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage('assets/icons/images/profile.png'), // User profile image
+                      backgroundImage: const AssetImage(
+                          'assets/icons/images/profile.png'), // User profile image
                     ),
                     const SizedBox(height: 10),
                     const Text(
                       'John Doe', // Username
                       style: TextStyle(
-                        fontSize: 26, // Slightly bigger font for the username
+                        fontSize: 26,
                         color: Color.fromARGB(255, 5, 80, 150),
                         fontWeight: FontWeight.bold,
                       ),
@@ -41,7 +39,7 @@ class ProfilePage extends StatelessWidget {
                     const Text(
                       'john.doe@example.com', // User email
                       style: TextStyle(
-                        fontSize: 14, // Smaller font size for the email
+                        fontSize: 14,
                         color: Color.fromARGB(179, 69, 119, 199),
                       ),
                     ),
@@ -54,41 +52,30 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  // Account Settings section
                   _buildSettingOption(
                     icon: Icons.person,
                     title: 'Account Settings',
-                    onTap: () {
-                      // Handle navigation to Account Settings
-                    },
+                    onTap: () {},
                   ),
                   _buildSettingOption(
                     icon: Icons.lock,
                     title: 'Change Password',
-                    onTap: () {
-                      // Handle password change navigation
-                    },
+                    onTap: () {},
                   ),
                   _buildSettingOption(
                     icon: Icons.notifications,
                     title: 'Notifications',
-                    onTap: () {
-                      // Handle notifications settings
-                    },
+                    onTap: () {},
                   ),
                   _buildSettingOption(
                     icon: Icons.help,
                     title: 'Help & Support',
-                    onTap: () {
-                      // Handle help & support navigation
-                    },
+                    onTap: () {},
                   ),
                   _buildSettingOption(
                     icon: Icons.exit_to_app,
                     title: 'Logout',
-                    onTap: () {
-                      // Handle logout functionality
-                    },
+                    onTap: () => _showLogoutDialog(context),
                   ),
                 ],
               ),
@@ -99,7 +86,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Helper function to build individual setting options with more creative and smaller text
   Widget _buildSettingOption({
     required IconData icon,
     required String title,
@@ -123,16 +109,16 @@ class ProfilePage extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.blue, size: 28), // Slightly larger icons
+            Icon(icon, color: Colors.blue, size: 28),
             const SizedBox(width: 20),
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: 16, // Smaller text for a more refined look
-                  fontWeight: FontWeight.w600, // Bold text for emphasis
-                  letterSpacing: 1.1, // Slightly increased letter spacing for readability
-                  color: Colors.black87, // Darker text for better visibility
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
+                  color: Colors.black87,
                 ),
               ),
             ),
@@ -143,6 +129,31 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Close dialog
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Perform logout action
+              Navigator.pop(context); // Close dialog
+              Navigator.pushReplacementNamed(
+                  context, '/login'); // Navigate to login
+            },
+            child: const Text('Logout'),
+          ),
+        ],
       ),
     );
   }

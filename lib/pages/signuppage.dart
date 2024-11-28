@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bookshop/models/user_model.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -14,18 +16,42 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Firebase Auth instance
+  // Firebase instances
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Signup function
   Future<void> _signup() async {
     try {
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
+      final String username = _usernameController.text.trim();
+
+      if (username.isEmpty || email.isEmpty || password.isEmpty) {
+        throw Exception('Please fill in all required fields.');
+      }
 
       // Firebase signup
-      await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Get user ID
+      final String userId = userCredential.user!.uid;
+
+      // Create a UserModel
+      UserModel newUser = UserModel(
+        id: userId,
+        name: username,
+        email: email,
+        phone: null, // Optional field
+        address: null, // Optional field
+      );
+
+      // Save user to Firestore
+      await _firestore.collection('users').doc(userId).set(newUser.toMap());
 
       // Navigate to home after successful signup
       Navigator.pushNamed(context, '/home');
@@ -43,7 +69,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50], // Light blue background
+      backgroundColor: Colors.lightBlue[50],
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -75,7 +101,7 @@ class _SignupPageState extends State<SignupPage> {
                     textAlign: TextAlign.center,
                   ),
                   Image.asset(
-                    'assets/icons/images/signup_bg.png', // Replace with your own image
+                    'assets/icons/images/signup_bg.png',
                     height: 200.0,
                   ),
                   const SizedBox(height: 15),
@@ -83,7 +109,6 @@ class _SignupPageState extends State<SignupPage> {
                     controller: _usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username',
-                      labelStyle: const TextStyle(fontSize: 14.0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -94,7 +119,6 @@ class _SignupPageState extends State<SignupPage> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: const TextStyle(fontSize: 14.0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -106,7 +130,6 @@ class _SignupPageState extends State<SignupPage> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(fontSize: 14.0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
