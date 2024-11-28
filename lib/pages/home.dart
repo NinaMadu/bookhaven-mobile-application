@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/cartpage.dart';
+import 'package:bookshop/pages/search.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bookshop/pages/bookitem.dart';
@@ -97,6 +98,11 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    }else if(index == 1){
+       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SearchPage()),
       );
     }
   }
