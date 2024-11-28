@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bookshop/pages/bookitem.dart';
 import 'package:bookshop/pages/profile.dart';
-import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,106 +12,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<String> categories = [
+    "All",
     "Fiction",
     "Non-fiction",
     "Science",
     "Mystery",
     "Romance",
   ];
-
-  final Map<String, List<Map<String, String>>> books = {
-  "Fiction": [
-    {
-      "title": "The Great Gatsby",
-      "price": "\$10",
-      "image": "assets/icons/images/book.png",
-      "author": "F. Scott Fitzgerald",
-      "description": "A classic novel set in the Jazz Age that explores themes of wealth, love, and the American Dream."
-    },
-    {
-      "title": "1984",
-      "price": "\$12",
-      "image": "assets/icons/images/book.png",
-      "author": "George Orwell",
-      "description": "A dystopian tale that delves into totalitarianism, surveillance, and the struggle for freedom."
-    },
-  ],
-  "Non-fiction": [
-    {
-      "title": "Sapiens",
-      "price": "\$15",
-      "image": "assets/nonfiction1.jpg",
-      "author": "Yuval Noah Harari",
-      "description": "A groundbreaking exploration of the history of humankind, from the Stone Age to the modern era."
-    },
-    {
-      "title": "Educated",
-      "price": "\$14",
-      "image": "assets/nonfiction2.jpg",
-      "author": "Tara Westover",
-      "description": "A memoir of resilience and the transformative power of education in overcoming a restrictive upbringing."
-    },
-  ],
-  "Science": [
-    {
-      "title": "A Brief History of Time",
-      "price": "\$18",
-      "image": "assets/science1.jpg",
-      "author": "Stephen Hawking",
-      "description": "An iconic book that explores the mysteries of the universe, time, and black holes."
-    },
-    {
-      "title": "The Selfish Gene",
-      "price": "\$16",
-      "image": "assets/science2.jpg",
-      "author": "Richard Dawkins",
-      "description": "A groundbreaking book on evolution, presenting the gene-centered view of natural selection."
-    },
-  ],
-  "Mystery": [
-    {
-      "title": "Gone Girl",
-      "price": "\$11",
-      "image": "assets/mystery1.jpg",
-      "author": "Gillian Flynn",
-      "description": "A psychological thriller that unravels the secrets of a marriage turned sour."
-    },
-    {
-      "title": "Sherlock Holmes",
-      "price": "\$13",
-      "image": "assets/mystery2.jpg",
-      "author": "Arthur Conan Doyle",
-      "description": "The adventures of the legendary detective Sherlock Holmes and his loyal friend Dr. Watson."
-    },
-  ],
-  "Romance": [
-    {
-      "title": "Pride and Prejudice",
-      "price": "\$9",
-      "image": "assets/romance1.jpg",
-      "author": "Jane Austen",
-      "description": "A beloved romantic novel that explores themes of love, social class, and personal growth."
-    },
-    {
-      "title": "The Notebook",
-      "price": "\$10",
-      "image": "assets/romance2.jpg",
-      "author": "Nicholas Sparks",
-      "description": "A timeless love story that recounts the enduring bond between two people across the years."
-    },
-  ],
-};
-
-
-  final List<Map<String, String>> offers = [
-    {"title": "Buy 1 Get 1 Free", "image": "assets/offer1.jpg"},
-    {"title": "20% Off on Bestsellers", "image": "assets/offer2.jpg"},
-    {"title": "Flat \$5 Off on Science Books", "image": "assets/offer3.jpg"},
-  ];
-
-  String selectedCategory = "Fiction"; // Default category
-
-  int _selectedIndex = 0;
+  String selectedCategory = "All";
+  List<Map<String, dynamic>> books = [];
+  List<Map<String, dynamic>> offers = [];
+  int _selectedIndex = 0; // For Bottom Navigation Bar
 
   final List<Widget> _pages = [
     const Center(child: Text("Home Page Content")),
@@ -118,6 +30,60 @@ class _HomePageState extends State<HomePage> {
     const Center(child: Text("Favorites Page Content")),
     const ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBooks();
+    _fetchOffers();
+  }
+
+  Future<void> _fetchBooks() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('Book').get();
+
+      List<Map<String, dynamic>> fetchedBooks = querySnapshot.docs.map((doc) {
+        return {
+          "title": doc["title"] ?? "No Title", // Default if title is missing
+          "category": doc["category"] ?? "Uncategorized", // Default category
+          "price": doc["price"]?.toString() ?? "0", // Ensure price is a string
+          "image":
+              doc["image"] ?? "", // Default empty string if image is missing
+          "author":
+              doc["author"] ?? "Unknown Author", // Default if author is missing
+          "description": doc["description"] ??
+              "No Description", // Default if description is missing
+        };
+      }).toList();
+
+      setState(() {
+        books = fetchedBooks; // Update the state with the fetched book data
+      });
+    } catch (e) {
+      print("Error fetching books: $e"); // Log any errors
+    }
+  }
+
+  Future<void> _fetchOffers() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('Offer').get();
+
+      List<Map<String, dynamic>> fetchedOffers = querySnapshot.docs.map((doc) {
+        return {
+          "title": doc["title"] ?? "No Title",
+          "image": doc["image"] ?? "",
+        };
+      }).toList();
+
+      setState(() {
+        offers = fetchedOffers;
+      });
+    } catch (e) {
+      print("Error fetching offers: $e");
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -142,29 +108,33 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Offers Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const Text(
-              "Special Offers",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          if (offers.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                "Offers",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: offers.length,
-              itemBuilder: (context, index) {
-                final offer = offers[index];
-                return offerCard(offer["title"]!, offer["image"]!);
-              },
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: offers.length,
+                itemBuilder: (context, index) {
+                  final offer = offers[index];
+                  return offerCard(offer["title"], offer["image"]);
+                },
+              ),
             ),
-          ),
+          ],
+
+          const SizedBox(height: 16),
 
           // Categories Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const Text(
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
               "Categories",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
@@ -188,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color.fromARGB(255, 43, 118, 178) : Colors.grey.shade200,
+                      color: isSelected ? Colors.blue : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
@@ -211,32 +181,48 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              "$selectedCategory Books",
+              selectedCategory == "All"
+                  ? "All Books"
+                  : "$selectedCategory Books",
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ),
           const SizedBox(height: 16),
-          // Wrap the book grid inside a SingleChildScrollView to make it scrollable
+
+          // Display Books
           Expanded(
-            child: SingleChildScrollView(
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.7,
-                ),
-                itemCount: books[selectedCategory]?.length ?? 0,
-                itemBuilder: (context, index) {
-                  final book = books[selectedCategory]![index];
-                  return bookCard(
-                      book["title"]!, book["image"]!, book["price"]!,book["author"]!,book["description"]!);
-                },
-              ),
-            ),
+            child: books.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.7,
+                    ),
+                    itemCount: books
+                        .where((book) =>
+                            selectedCategory == "All" ||
+                            book["category"] == selectedCategory)
+                        .length,
+                    itemBuilder: (context, index) {
+                      final filteredBooks = books
+                          .where((book) =>
+                              selectedCategory == "All" ||
+                              book["category"] == selectedCategory)
+                          .toList();
+                      final book = filteredBooks[index];
+                      return bookCard(
+                        book['title'], // Title of the book
+                        book['image'], // Image URL of the book
+                        book['price'], // Price of the book
+                        book['author'], // Author of the book
+                        book['description'],
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -280,45 +266,21 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: const Icon(Icons.shopping_cart, color: Colors.black),
           onPressed: () {
-            // Navigate to cart page
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => CartPage(cartItems: cart),
+            //   ),
+            // ).then(
+            //     (_) => setState(() {})); // Update cart if any item is removed
           },
         ),
       ],
     );
   }
 
-  Widget offerCard(String title, String image) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      width: 250,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          gradient: LinearGradient(
-            colors: [Colors.black.withOpacity(0.7), Colors.transparent],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-          ),
-        ),
-        padding: const EdgeInsets.all(10),
-        alignment: Alignment.bottomLeft,
-        child: Text(
-          title,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Widget bookCard(String title, String image, String price, String author, String description) {
+  Widget bookCard(String title, String image, String price, String author,
+      String description) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
@@ -330,28 +292,31 @@ class _HomePageState extends State<HomePage> {
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
-              child: Image.asset(
+              child: Image.network(
                 image,
                 fit: BoxFit.cover,
                 width: double.infinity,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image, size: 50),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(8.0),
             child: Text(
               title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              price,
-              style: const TextStyle(color: Color.fromARGB(255, 44, 114, 171)),
+              "\$${price.toString()}",
+              style: const TextStyle(color: Colors.blue),
             ),
           ),
-          // View Book Button
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
@@ -362,16 +327,16 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => BookItemPage(
                       title: title,
                       image: image,
-                      price: price, 
+                      price: price,
                       author: author,
-                       description: description,
+                      description: description,
                     ),
                   ),
                 );
               },
-              child: Text(
+              child: const Text(
                 "View Book",
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white, // Text color
                   fontWeight: FontWeight.normal, // Text weight
                   fontSize: 16, // Optional: Text size
@@ -384,6 +349,39 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget offerCard(String title, String image) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          children: [
+            Image.network(
+              image,
+              fit: BoxFit.cover,
+              width: 150,
+              height: double.infinity,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.broken_image, size: 50),
+            ),
+            Positioned(
+              bottom: 10,
+              left: 10,
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  backgroundColor: Colors.black54,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
