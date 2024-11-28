@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/accountsettings.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -55,7 +56,14 @@ class ProfilePage extends StatelessWidget {
                   _buildSettingOption(
                     icon: Icons.person,
                     title: 'Account Settings',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountSettings(),
+                        ),
+                      );
+                    },
                   ),
                   _buildSettingOption(
                     icon: Icons.lock,
