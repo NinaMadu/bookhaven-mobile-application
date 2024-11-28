@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/order.dart';
 import 'package:flutter/material.dart';
 
 class BookItemPage extends StatelessWidget {
@@ -152,7 +153,18 @@ class BookItemPage extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Place order functionality
+                        // Navigate to the OrderPage
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderPage(
+                              title: title,
+                              image: image,
+                              price: price,
+                              author: author,
+                            ),
+                          ),
+                        );
                       },
                       child: const Text("Place Order"),
                       style: ElevatedButton.styleFrom(
