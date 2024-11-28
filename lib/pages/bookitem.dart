@@ -1,5 +1,7 @@
-import 'package:bookshop/pages/order.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:bookshop/pages/order.dart';
 
 class BookItemPage extends StatelessWidget {
   final String title;
@@ -17,6 +19,68 @@ class BookItemPage extends StatelessWidget {
     required this.description,
   }) : super(key: key);
 
+  Future<void> _addToCart(BuildContext context) async {
+    try {
+      // Get the current user's ID
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (userId == null) {
+        throw Exception("User is not signed in");
+      }
+
+      // Query Firestore to find the document ID of the current book
+      final bookQuery = await FirebaseFirestore.instance
+          .collection('Book') // Assuming your books collection is named 'books'
+          .where('title', isEqualTo: title) // Match the book title
+          .where('author', isEqualTo: author) // Match the book author
+          .get();
+
+      if (bookQuery.docs.isEmpty) {
+        throw Exception("Book not found in the database.");
+      }
+
+      // Get the first matched document ID
+      final bookId = bookQuery.docs.first.id;
+
+      // Reference to the user's document
+      final userDoc =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      // Fetch the current cart
+      final userSnapshot = await userDoc.get();
+      final cart = userSnapshot.data()?['cart'] ?? [];
+
+      // Check if the book is already in the cart
+      bool isBookInCart = false;
+
+      for (var item in cart) {
+        if (item['bookId'] == bookId) {
+          isBookInCart = true;
+          item['quantity'] += 1; // Increment quantity
+          break;
+        }
+      }
+
+      if (!isBookInCart) {
+        // Add new item with quantity = 1
+        cart.add({'bookId': bookId, 'quantity': 1});
+      }
+
+      // Update the cart in Firestore
+      await userDoc.update({'cart': cart});
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Added to cart successfully!')),
+      );
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add to cart: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +94,6 @@ class BookItemPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
-        // Added to make content scrollable if needed
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -58,7 +121,7 @@ class BookItemPage extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Book Image (Using Image.network for URL)
+                    // Book Image
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.network(
@@ -76,7 +139,6 @@ class BookItemPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Book Title
                           Text(
                             title,
                             style: const TextStyle(
@@ -85,7 +147,6 @@ class BookItemPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // Author
                           Text(
                             author,
                             style: const TextStyle(
@@ -94,7 +155,6 @@ class BookItemPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // Price
                           Text(
                             price,
                             style: const TextStyle(
@@ -135,9 +195,8 @@ class BookItemPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Add to cart functionality
-                      },
+                      onPressed: () =>
+                          _addToCart(context), // Call the addToCart function
                       icon: const Icon(Icons.bookmark),
                       label: const Text("Add to Cart"),
                       style: ElevatedButton.styleFrom(
@@ -153,7 +212,6 @@ class BookItemPage extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigate to the OrderPage
                         Navigator.push(
                           context,
                           MaterialPageRoute(
