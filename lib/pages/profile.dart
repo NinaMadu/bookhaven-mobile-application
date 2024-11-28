@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/notifications.dart';
+import 'package:bookshop/pages/supportpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -131,7 +132,12 @@ class ProfilePage extends StatelessWidget {
                       _buildSettingOption(
                         icon: Icons.help,
                         title: 'Help & Support',
-                        onTap: () {},
+                        onTap: () {Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SupportPage(),
+                            ),
+                          );},
                       ),
                       _buildSettingOption(
                         icon: Icons.exit_to_app,
