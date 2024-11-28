@@ -1,3 +1,5 @@
+import 'package:bookshop/pages/cartpage.dart';
+import 'package:bookshop/pages/search.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bookshop/pages/bookitem.dart';
@@ -96,6 +98,11 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    }else if(index == 1){
+       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SearchPage()),
       );
     }
   }
@@ -265,14 +272,14 @@ class _HomePageState extends State<HomePage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.shopping_cart, color: Colors.black),
-          onPressed: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => CartPage(cartItems: cart),
-            //   ),
-            // ).then(
-            //     (_) => setState(() {})); // Update cart if any item is removed
+            onPressed: () {
+              // Navigate to CartPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CartPage(), // Create CartPage instance
+                ),
+              );
           },
         ),
       ],
