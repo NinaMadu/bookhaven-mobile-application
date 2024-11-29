@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CartPage extends StatefulWidget {
@@ -8,57 +10,155 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  // Mock cart data (replace this with data fetched from your database)
-  List<Map<String, dynamic>> cartItems = [
-    {
-      "imageUrl": "https://via.placeholder.com/150",
-      "title": "Book A",
-      "price": 20.0,
-      "quantity": 1,
-    },
-    {
-      "imageUrl": "https://via.placeholder.com/150",
-      "title": "Book B",
-      "price": 15.0,
-      "quantity": 1,
-    },
-    {
-      "imageUrl": "https://via.placeholder.com/150",
-      "title": "Book C",
-      "price": 30.0,
-      "quantity": 2,
-    },
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Function to calculate subtotal
-  double getSubtotal() {
-    return cartItems.fold(
-      0.0,
-      (total, item) => total + (item["price"] * item["quantity"]),
-    );
+  late String userId;
+  List<Map<String, dynamic>> cartItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final user = _auth.currentUser;
+    if (user != null) {
+      userId = user.uid;
+      _fetchCartItems(); // Fetch cart items when the page initializes
+    } else {
+      // Handle unauthenticated user
+      Navigator.pushReplacementNamed(context, '/login'); // Or show login screen
+    }
   }
 
-  // Increment item quantity
-  void incrementQuantity(int index) {
-    setState(() {
-      cartItems[index]["quantity"] += 1;
-    });
-  }
-
-  // Decrement item quantity
-  void decrementQuantity(int index) {
-    setState(() {
-      if (cartItems[index]["quantity"] > 1) {
-        cartItems[index]["quantity"] -= 1;
+  Future<void> _fetchCartItems() async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists ||
+          userDoc.data() == null ||
+          userDoc["cart"] == null) {
+        debugPrint("Cart field is missing or empty in Firestore.");
+        setState(() {
+          cartItems = [];
+        });
+        return;
       }
+
+      final cart = userDoc["cart"] as List<dynamic>;
+      if (cart.isEmpty) {
+        debugPrint("Cart is empty in Firestore.");
+        setState(() {
+          cartItems = [];
+        });
+        return;
+      }
+
+      List<Map<String, dynamic>> items = [];
+      for (var item in cart) {
+        final bookDoc =
+            await _firestore.collection('Book').doc(item['bookId']).get();
+        if (bookDoc.exists) {
+          final bookData = bookDoc.data();
+          // Ensure 'image' exists before accessing it
+          if (bookData != null && bookData.containsKey('image')) {
+            items.add({
+              'bookId': item['bookId'],
+              'imageUrl': bookData['image'], // Changed to 'image' field
+              'title': bookData['title'],
+              'price': bookData['price'],
+              'quantity': item['quantity'],
+            });
+          } else {
+            debugPrint("Missing 'image' for bookId: ${item['bookId']}");
+            items.add({
+              'bookId': item['bookId'],
+              'imageUrl': 'https://default-image-url.com', // fallback image
+              'title': bookData?['title'] ?? 'Unknown', // fallback title
+              'price': bookData?['price'] ?? 0, // fallback price
+              'quantity': item['quantity'],
+            });
+          }
+        } else {
+          debugPrint("Book document not found for bookId: ${item['bookId']}");
+        }
+      }
+
+      debugPrint("Items fetched: $items");
+
+      setState(() {
+        cartItems = items;
+      });
+    } catch (e) {
+      debugPrint('Error fetching cart items: $e');
+    }
+  }
+
+  double getSubtotal() {
+    return cartItems.fold(0, (total, item) {
+      return total + (item['price'] * item['quantity']);
     });
   }
 
-  // Delete item from cart
-  void deleteItem(int index) {
-    setState(() {
-      cartItems.removeAt(index);
-    });
+  Future<void> updateQuantity(String bookId, int newQuantity) async {
+    try {
+      final userDoc = _firestore.collection('users').doc(userId);
+
+      // Remove the old item with the previous quantity
+      await userDoc.update({
+        'cart': FieldValue.arrayRemove([
+          {
+            'bookId': bookId,
+            'quantity': cartItems
+                .firstWhere((item) => item['bookId'] == bookId)['quantity']
+          }
+        ]),
+      });
+
+      // Add the updated item with the new quantity
+      await userDoc.update({
+        'cart': FieldValue.arrayUnion([
+          {'bookId': bookId, 'quantity': newQuantity}
+        ]),
+      });
+
+      await _fetchCartItems(); // Refresh the cart items after updating the quantity
+    } catch (e) {
+      debugPrint('Error updating quantity: $e');
+    }
+  }
+
+  void incrementQuantity(int index) {
+    final item = cartItems[index];
+    updateQuantity(item['bookId'], item['quantity'] + 1);
+  }
+
+  void decrementQuantity(int index) {
+    final item = cartItems[index];
+    if (item['quantity'] > 1) {
+      updateQuantity(item['bookId'], item['quantity'] - 1);
+    }
+  }
+
+  Future<void> deleteItem(int index) async {
+    final bookId = cartItems[index]['bookId'];
+    try {
+      final userDoc = _firestore.collection('users').doc(userId);
+
+      // Ensure you remove the item using the exact structure as in Firestore
+      final itemToRemove = {
+        'bookId': bookId,
+        'quantity': cartItems[index]['quantity']
+      };
+
+      await userDoc.update({
+        'cart': FieldValue.arrayRemove(
+            [itemToRemove]), // Removing the exact item structure
+      });
+
+      setState(() {
+        cartItems.removeAt(index); // Remove the item locally from UI
+      });
+    } catch (e) {
+      debugPrint('Error deleting item: $e');
+    }
   }
 
   @override
@@ -67,14 +167,19 @@ class _CartPageState extends State<CartPage> {
       appBar: AppBar(
         title: const Text("Cart"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Cart items list
-            Expanded(
-              child: cartItems.isNotEmpty
-                  ? ListView.builder(
+      body: cartItems.isEmpty
+          ? const Center(
+              child: Text(
+                "Your cart is empty",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
                       itemCount: cartItems.length,
                       itemBuilder: (context, index) {
                         final item = cartItems[index];
@@ -83,7 +188,6 @@ class _CartPageState extends State<CartPage> {
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             children: [
-                              // Book image
                               Container(
                                 width: 80,
                                 height: 80,
@@ -96,7 +200,6 @@ class _CartPageState extends State<CartPage> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              // Book details
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,12 +223,14 @@ class _CartPageState extends State<CartPage> {
                                     Row(
                                       children: [
                                         IconButton(
-                                          onPressed: () => decrementQuantity(index),
+                                          onPressed: () =>
+                                              decrementQuantity(index),
                                           icon: const Icon(Icons.remove),
                                         ),
                                         Text("${item["quantity"]}"),
                                         IconButton(
-                                          onPressed: () => incrementQuantity(index),
+                                          onPressed: () =>
+                                              incrementQuantity(index),
                                           icon: const Icon(Icons.add),
                                         ),
                                       ],
@@ -133,61 +238,47 @@ class _CartPageState extends State<CartPage> {
                                   ],
                                 ),
                               ),
-                              // Delete button
                               IconButton(
                                 onPressed: () => deleteItem(index),
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
                               ),
                             ],
                           ),
                         );
                       },
-                    )
-                  : const Center(
-                      child: Text(
-                        "Your cart is empty",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
                     ),
-            ),
-            // Subtotal display
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Subtotal",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    "\$${getSubtotal().toStringAsFixed(2)}",
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Subtotal",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "\$${getSubtotal().toStringAsFixed(2)}",
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Implement checkout functionality here
+                      },
+                      child: const Text("Proceed to Checkout"),
+                    ),
                   ),
                 ],
               ),
             ),
-            // Checkout button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement checkout functionality here
-                },
-                child: const Text("Proceed to Checkout"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 16, 69, 137),
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-              
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
