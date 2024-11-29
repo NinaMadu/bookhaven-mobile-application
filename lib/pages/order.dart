@@ -407,16 +407,22 @@ class _OrderPageState extends State<OrderPage> {
   Widget _buildConfirmOrderButton() {
     return Center(
       child: ElevatedButton(
-        onPressed: _confirmOrder,
+        onPressed: () {
+          // Handle form submission
+        },
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size(150, 50),
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white
+          backgroundColor: const Color.fromARGB(255, 2, 45, 121),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 60,
+            vertical: 14,
+          ),
+          textStyle: const TextStyle(fontSize: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
-        child: const Text(
-          'Confirm Order',
-          style: TextStyle(fontSize: 18),
-        ),
+        child: const Text('Confirm Order'),
       ),
     );
   }
