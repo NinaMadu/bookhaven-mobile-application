@@ -93,7 +93,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   double getSubtotal() {
-    return cartItems.fold(0, (total, item) {
+    return cartItems.fold(0.0, (total, item) {
       return total + (item['price'] * item['quantity']);
     });
   }
@@ -272,23 +272,22 @@ class _CartPageState extends State<CartPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigate to the OrderPage and pass the cart items
+                        final totalPrice = getSubtotal();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => OrderPage(
-                              cartItems: cartItems.map((item) {
-                                return {
-                                  'bookId': item['bookId']
-                                      .toString(), // Convert bookId to string
-                                  'quantity': item['quantity']
-                                      .toString(), // Convert quantity to string if needed
-                                };
-                              }).toList(),
+                            builder: (context) => Order2Page(
+                              cartItems: cartItems, // Pass the cart items
+                              totalPrice: totalPrice, // Pass the total price
                             ),
                           ),
                         );
                       },
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(150, 50),
+                          backgroundColor:
+                              const Color.fromARGB(255, 26, 87, 136),
+                          foregroundColor: Colors.white),
                       child: const Text("Proceed to Checkout"),
                     ),
                   ),

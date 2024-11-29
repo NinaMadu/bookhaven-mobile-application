@@ -411,6 +411,7 @@ class _OrderPageState extends State<OrderPage> {
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(150, 50),
           backgroundColor: Colors.green,
+          foregroundColor: Colors.white
         ),
         child: const Text(
           'Confirm Order',
