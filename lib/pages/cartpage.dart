@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/oder2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -271,7 +272,22 @@ class _CartPageState extends State<CartPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Implement checkout functionality here
+                        // Navigate to the OrderPage and pass the cart items
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderPage(
+                              cartItems: cartItems.map((item) {
+                                return {
+                                  'bookId': item['bookId']
+                                      .toString(), // Convert bookId to string
+                                  'quantity': item['quantity']
+                                      .toString(), // Convert quantity to string if needed
+                                };
+                              }).toList(),
+                            ),
+                          ),
+                        );
                       },
                       child: const Text("Proceed to Checkout"),
                     ),

@@ -4,17 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:bookshop/models/order_model.dart';
 
 class OrderPage extends StatefulWidget {
-  final String title;
-  final String image;
-  final String price;
-  final String author;
+  final List<Map<String, dynamic>> cartItems; // List of cart items
 
   const OrderPage({
     Key? key,
-    required this.title,
-    required this.image,
-    required this.price,
-    required this.author,
+    required this.cartItems,
   }) : super(key: key);
 
   @override
@@ -83,12 +77,15 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    double basePrice = double.tryParse(widget.price) ?? 0.0;
-    double totalPrice = basePrice + _additionalDeliveryFee;
+    double totalPrice = widget.cartItems.fold(0.0, (sum, item) {
+          double price = double.tryParse(item['price']) ?? 0.0;
+          return sum + price;
+        }) +
+        _additionalDeliveryFee;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Book'),
+        title: const Text('Order Books'),
         backgroundColor: const Color(0xFFE9E7E7),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -101,8 +98,8 @@ class _OrderPageState extends State<OrderPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Book Details
-                    _buildBookDetails(),
+                    // Cart Items
+                    _buildCartItems(),
                     const SizedBox(height: 24),
 
                     // Customer Information
@@ -134,61 +131,82 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildBookDetails() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+  Widget _buildCartItems() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Cart Items",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              widget.image,
-              height: 100,
-              width: 70,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+        ),
+        const SizedBox(height: 10),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.cartItems.length,
+          itemBuilder: (context, index) {
+            final item = widget.cartItems[index];
+            return Container(
+              padding: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.only(bottom: 10.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Author: ${widget.author}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Price: ${widget.price}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      item['image'],
+                      height: 100,
+                      width: 70,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Author: ${item['author']}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Price: ${item['price']}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -327,8 +345,8 @@ class _OrderPageState extends State<OrderPage> {
           controller: _instructionsController,
           maxLines: 3,
           decoration: const InputDecoration(
-            labelText: 'Any special instructions?',
-            prefixIcon: Icon(Icons.notes),
+            hintText: 'Enter any additional instructions (optional)',
+            prefixIcon: Icon(Icons.note),
             border: OutlineInputBorder(),
           ),
         ),
@@ -337,86 +355,31 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget _buildTotalPrice(double totalPrice) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Total Price:',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Base Price',
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                '\$${widget.price}',
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
+        ),
+        Text(
+          '\$$totalPrice',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Delivery Fee',
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                '\$$_additionalDeliveryFee',
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Price',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '\$${totalPrice.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildConfirmOrderButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: _confirmOrder,
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(150, 50),
-          backgroundColor: Colors.green,
-        ),
-        child: const Text(
-          'Confirm Order',
-          style: TextStyle(fontSize: 18),
-        ),
-      ),
+    return ElevatedButton(
+      onPressed: _confirmOrder,
+      child: const Text('Confirm Order'),
     );
   }
 
@@ -434,19 +397,39 @@ class _OrderPageState extends State<OrderPage> {
       return;
     }
 
+    // Gather all selected items and their quantities
+    List<Map<String, dynamic>> orderItems = [];
+    double totalPrice = 0.0;
+
+    // Example for adding multiple items from cart
+    for (var cartItem in widget.cartItems) {
+      // Calculate price for each item
+      double itemPrice = double.tryParse(cartItem['price']) ?? 0.0;
+      totalPrice += itemPrice * cartItem['quantity'];
+
+      // Add the item to the orderItems list
+      orderItems.add({
+        'bookId': cartItem['bookId'],
+        'quantity': cartItem['quantity'],
+        'title': cartItem['title'],
+        'price': itemPrice,
+      });
+    }
+
+    // Add the additional delivery fee to totalPrice
+    totalPrice += _additionalDeliveryFee;
+
     // Create the order object
     final order = OrderModel(
       userId: FirebaseAuth.instance.currentUser!.uid,
       orderDate: DateTime.now(),
-      items: [
-        {'bookId': widget.title, 'quantity': 1} // Example, modify as needed
-      ],
+      items: orderItems, // Passing multiple items in the order
       fullName: _nameController.text,
       phone: _phoneController.text,
       address: _addressController.text,
       deliveryType: _deliveryType,
       paymentMethod: _paymentMethod,
-      totalPrice: double.tryParse(widget.price) ?? 0.0 + _additionalDeliveryFee,
+      totalPrice: totalPrice,
       additionalInstructions: _instructionsController.text.isEmpty
           ? null
           : _instructionsController.text,
