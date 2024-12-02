@@ -1,5 +1,7 @@
 import 'package:bookshop/pages/cartpage.dart';
+import 'package:bookshop/pages/notifications.dart';
 import 'package:bookshop/pages/search.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bookshop/pages/bookitem.dart';
@@ -40,6 +42,11 @@ class _HomePageState extends State<HomePage> {
     _fetchOffers();
   }
 
+  String? getCurrentUserId() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
   Future<void> _fetchBooks() async {
     try {
       QuerySnapshot querySnapshot =
@@ -54,8 +61,7 @@ class _HomePageState extends State<HomePage> {
               doc["image"] ?? "", // Default empty string if image is missing
           "author":
               doc["author"] ?? "Unknown Author", // Default if author is missing
-          "description": doc["description"] ??
-              "No Description", // Default if description is missing
+          "description": doc["description"] ?? "No Description",
         };
       }).toList();
 
@@ -99,8 +105,8 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(builder: (context) => const ProfilePage()),
       );
-    }else if(index == 1){
-       Navigator.push(
+    } else if (index == 1) {
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SearchPage()),
       );
@@ -110,7 +116,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(),
+      appBar: appBar(context),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -261,7 +267,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  AppBar appBar() {
+  AppBar appBar(BuildContext context) {
+    final userId =
+        getCurrentUserId(); // Replace with your method to get the current user's ID.
+
     return AppBar(
       title: const Text(
         'Book Haven',
@@ -270,16 +279,117 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       elevation: 0,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart, color: Colors.black),
-            onPressed: () {
-              // Navigate to CartPage
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CartPage(), // Create CartPage instance
-                ),
-              );
+        // Notification Icon
+        StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection(
+                  'users') // Replace with your Firestore collection name
+              .doc(userId)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final cartCount = (snapshot.data?.data()
+                        as Map<String, dynamic>?)?['notifications']
+                    ?.length ??
+                0;
+
+            return IconButton(
+              icon: Stack(
+                children: [
+                  const Icon(Icons.notifications,
+                      color: Colors.black), // Cart icon
+                  if (cartCount > 0) // Show count if cart is not empty
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$cartCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationsPage(), // Navigate to CartPage
+                  ),
+                );
+              },
+            );
+          },
+        ),
+
+        StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection(
+                  'users') // Replace with your Firestore collection name
+              .doc(userId)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final cartCount =
+                (snapshot.data?.data() as Map<String, dynamic>?)?['cart']
+                        ?.length ??
+                    0;
+
+            return IconButton(
+              icon: Stack(
+                children: [
+                  const Icon(Icons.shopping_cart,
+                      color: Colors.black), // Cart icon
+                  if (cartCount > 0) // Show count if cart is not empty
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$cartCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CartPage(), // Navigate to CartPage
+                  ),
+                );
+              },
+            );
           },
         ),
       ],
@@ -303,13 +413,14 @@ class _HomePageState extends State<HomePage> {
                 image,
                 fit: BoxFit.cover,
                 width: double.infinity,
+                //height: 400,
                 errorBuilder: (context, error, stackTrace) =>
                     const Icon(Icons.broken_image, size: 50),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(2.0),
             child: Text(
               title,
               maxLines: 1,
@@ -318,14 +429,31 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "\$${price.toString()}",
-              style: const TextStyle(color: Colors.blue),
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "\$${price.toString()}",
+                    style: const TextStyle(color: Colors.blue),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.favorite_border, // Use favorite for selected state
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    // Add to favorites functionality
+                    print('Added "$title" to favorites');
+                  },
+                ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 3.0, horizontal: 16.0),
             child: ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -344,14 +472,13 @@ class _HomePageState extends State<HomePage> {
               child: const Text(
                 "View Book",
                 style: TextStyle(
-                  color: Colors.white, // Text color
-                  fontWeight: FontWeight.normal, // Text weight
-                  fontSize: 16, // Optional: Text size
+                  color: Colors.white,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 16,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    const Color.fromARGB(255, 75, 180, 199), // Button color
+                backgroundColor: const Color.fromARGB(255, 75, 180, 199),
               ),
             ),
           ),
