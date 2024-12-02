@@ -1,58 +1,75 @@
 import 'package:flutter/material.dart';
 
-class BookLoadingIndicator extends StatefulWidget {
-  const BookLoadingIndicator({Key? key}) : super(key: key);
-
+class CartPage extends StatefulWidget {
   @override
-  _BookLoadingIndicatorState createState() => _BookLoadingIndicatorState();
+  _CartPageState createState() => _CartPageState();
 }
 
-class _BookLoadingIndicatorState extends State<BookLoadingIndicator>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _flipAnimation;
+class _CartPageState extends State<CartPage> {
+  List<String> cartItems = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _loadCartItems();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Future<void> _loadCartItems() async {
+    // Simulate a delay (e.g., network call)
+    await Future.delayed(Duration(seconds: 3));
+
+    setState(() {
+      cartItems = ['Item 1', 'Item 2', 'Item 3']; // Example items
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 100,
-        height: 100,
-        child: AnimatedBuilder(
-          animation: _flipAnimation,
-          builder: (context, child) {
-            return Transform(
-              transform: Matrix4.rotationY(_flipAnimation.value * 3.14),
-              alignment: Alignment.center,
-              child: child,
-            );
-          },
-          child: Image.network(
-            'https://static.vecteezy.com/system/resources/previews/003/731/077/non_2x/open-book-bookmark-free-vector.jpg', // Add a book image here
-            fit: BoxFit.contain,
+    return Scaffold(
+      appBar: AppBar(title: Text('Your Cart')),
+      body: isLoading
+          ? ListView.builder(
+              itemCount: 5, // Placeholder items
+              itemBuilder: (context, index) {
+                return SkeletonLoader();
+              },
+            )
+          : cartItems.isEmpty
+              ? Center(child: Text('Your cart is empty'))
+              : ListView.builder(
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(cartItems[index]),
+                    );
+                  },
+                ),
+    );
+  }
+}
+
+// Skeleton loading widget
+class SkeletonLoader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            color: Colors.grey[300],
           ),
-        ),
+          SizedBox(width: 15),
+          Container(
+            width: 200,
+            height: 20,
+            color: Colors.grey[300],
+          ),
+        ],
       ),
     );
   }

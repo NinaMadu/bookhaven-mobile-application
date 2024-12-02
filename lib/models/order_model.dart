@@ -10,7 +10,8 @@ class OrderModel {
   final String paymentMethod;
   final double totalPrice;
   final String?
-      additionalInstructions; // Nullable field for additional instructions
+      additionalInstructions; 
+// Nullable field for additional instructions
 
   OrderModel({
     required this.userId,

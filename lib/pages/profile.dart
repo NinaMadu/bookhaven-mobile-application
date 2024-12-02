@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/myorders.dart';
 import 'package:bookshop/pages/notifications.dart';
 import 'package:bookshop/pages/supportpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,7 +58,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 // Profile header
                 Container(
-                  height: 250,
+                  height: 200,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +93,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 // Settings options
                 Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Column(
                     children: [
                       _buildSettingOption(
@@ -120,6 +121,16 @@ class ProfilePage extends StatelessWidget {
                         },
                       ),
                       _buildSettingOption(
+                        icon: Icons.shopping_cart_checkout_sharp,
+                        title: 'My Orders',
+                        onTap: () {Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MyOrdersPage(),
+                            ),
+                          );},
+                      ),
+                      _buildSettingOption(
                         icon: Icons.notifications,
                         title: 'Notifications',
                         onTap: () {Navigator.push(
@@ -144,6 +155,7 @@ class ProfilePage extends StatelessWidget {
                         title: 'Logout',
                         onTap: () => _showLogoutDialog(context),
                       ),
+                      
                     ],
                   ),
                 ),
