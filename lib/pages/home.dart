@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/cartpage.dart';
+import 'package:bookshop/pages/favourites.dart';
 import 'package:bookshop/pages/notifications.dart';
 import 'package:bookshop/pages/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
       List<Map<String, dynamic>> fetchedBooks = querySnapshot.docs.map((doc) {
         return {
+          "bookID": doc.id,
           "title": doc["title"] ?? "No Title", // Default if title is missing
           "category": doc["category"] ?? "Uncategorized", // Default category
           "price": doc["price"]?.toString() ?? "0", // Ensure price is a string
@@ -109,6 +111,11 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SearchPage()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FavouritesPage()),
       );
     }
   }
@@ -228,12 +235,12 @@ class _HomePageState extends State<HomePage> {
                           .toList();
                       final book = filteredBooks[index];
                       return bookCard(
-                        book['title'], // Title of the book
-                        book['image'], // Image URL of the book
-                        book['price'], // Price of the book
-                        book['author'], // Author of the book
-                        book['description'],
-                      );
+                          book['title'], // Title of the book
+                          book['image'], // Image URL of the book
+                          book['price'], // Price of the book
+                          book['author'], // Author of the book
+                          book['description'],
+                          book['bookID']);
                     },
                   ),
           ),
@@ -397,7 +404,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget bookCard(String title, String image, String price, String author,
-      String description) {
+      String description, String bookId) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
@@ -444,8 +451,7 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.red,
                   ),
                   onPressed: () {
-                    // Add to favorites functionality
-                    print('Added "$title" to favorites');
+                    _addToFavorites(bookId);
                   },
                 ),
               ],
@@ -518,5 +524,33 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _addToFavorites(String bookId) async {
+    try {
+      final FirebaseAuth _auth = FirebaseAuth.instance;
+      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+      // Get the current user
+      final user = _auth.currentUser;
+      if (user == null) {
+        // Handle the case where the user is not logged in
+        print('User is not logged in');
+        return;
+      }
+
+      final userId = user.uid;
+
+      // Add bookId to the user's favorites list in Firestore
+      final userDoc = _firestore.collection('users').doc(userId);
+      await userDoc.update({
+        'favourites':
+            FieldValue.arrayUnion([bookId]), // Add the bookId to favorites
+      });
+
+      print('Book added to favourites');
+    } catch (e) {
+      print('Error adding to favourites: $e');
+    }
   }
 }
