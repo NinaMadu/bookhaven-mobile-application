@@ -31,7 +31,7 @@ class _CartPageState extends State<CartPage> {
       appBar: AppBar(title: Text('Your Cart')),
       body: isLoading
           ? ListView.builder(
-              itemCount: 5, // Placeholder items
+              itemCount: 5, // Show 5 skeleton loaders as a placeholder
               itemBuilder: (context, index) {
                 return SkeletonLoader();
               },
