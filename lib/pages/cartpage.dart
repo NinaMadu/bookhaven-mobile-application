@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/oder2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   double getSubtotal() {
-    return cartItems.fold(0, (total, item) {
+    return cartItems.fold(0.0, (total, item) {
       return total + (item['price'] * item['quantity']);
     });
   }
@@ -271,8 +272,22 @@ class _CartPageState extends State<CartPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Implement checkout functionality here
+                        final totalPrice = getSubtotal();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Order2Page(
+                              cartItems: cartItems, // Pass the cart items
+                              totalPrice: totalPrice, // Pass the total price
+                            ),
+                          ),
+                        );
                       },
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(150, 50),
+                          backgroundColor:
+                              const Color.fromARGB(255, 26, 87, 136),
+                          foregroundColor: Colors.white),
                       child: const Text("Proceed to Checkout"),
                     ),
                   ),
