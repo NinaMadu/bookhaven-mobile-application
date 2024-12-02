@@ -12,7 +12,6 @@ class _NotificationsPageState extends State<NotificationsPage>
   Set<String> clearedNotifications = {}; // Track cleared notifications
   bool isLoading = true; // Track loading state
   late AnimationController _animationController; // Animation controller
-  late Animation<double> _fadeAnimation; // Fade animation for clearing offers
 
   @override
   void initState() {
@@ -21,9 +20,6 @@ class _NotificationsPageState extends State<NotificationsPage>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
-    );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
 
@@ -61,11 +57,10 @@ class _NotificationsPageState extends State<NotificationsPage>
 
   // Function to clear all notifications with animation
   void _clearAllNotifications() async {
+    await _animationController.forward(); // Play animation
     setState(() {
-      // Mark all notifications as cleared
       clearedNotifications.addAll(offers.map((offer) => offer["id"]));
     });
-    await _animationController.forward(); // Play the animation for clearing
     _animationController.reset(); // Reset animation
   }
 
@@ -139,32 +134,29 @@ class _NotificationsPageState extends State<NotificationsPage>
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        color: const Color.fromARGB(255, 170, 166, 166),
+        color: Colors.red,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      child: FadeTransition(
-        opacity: _fadeAnimation, // Use the fade animation for transition
-        child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                offer["image"] ?? "",
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 60),
-              ),
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              offer["image"] ?? "",
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.broken_image, size: 60),
             ),
-            title: Text(
-              offer["title"] ?? "No Title",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: const Text("Swipe left to remove."),
           ),
+          title: Text(
+            offer["title"] ?? "No Title",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text("Swipe left to remove."),
         ),
       ),
     );

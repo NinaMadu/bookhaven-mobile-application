@@ -457,6 +457,7 @@ class _OrderPageState extends State<OrderPage> {
       additionalInstructions: _instructionsController.text.isEmpty
           ? null
           : _instructionsController.text,
+          orderStatus: 'Pending'
     );
 
     try {

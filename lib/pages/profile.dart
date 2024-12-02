@@ -1,11 +1,12 @@
-import 'package:bookshop/pages/myorders.dart';
+import 'package:bookshop/pages/accountsettings.dart';
+import 'package:bookshop/pages/changepassword.dart';
+import 'package:bookshop/pages/loginpage.dart';
+import 'package:bookshop/pages/myorders.dart'; // MyOrdersPage import
 import 'package:bookshop/pages/notifications.dart';
 import 'package:bookshop/pages/supportpage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'accountsettings.dart';
-import 'changepassword.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -33,8 +34,10 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        title: const Text('Profile'),
+        foregroundColor: Colors.black,
+        title: const Text('Profile', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _fetchUserDetails(),
@@ -56,26 +59,38 @@ class ProfilePage extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Profile header
+                // Profile header with gradient
                 Container(
-                  height: 200,
+                  height: 250,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blueAccent, Colors.purpleAccent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircleAvatar(
-                          radius: 50,
+                          radius: 60,
                           backgroundImage: NetworkImage(
                             userData['avatar'] ??
                                 'https://example.com/default-avatar.png',
                           ), // User profile image
+                          backgroundColor: Colors.transparent,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
                         Text(
                           userData['name'] ?? 'N/A', // Username
                           style: const TextStyle(
-                            fontSize: 26,
-                            color: Color.fromARGB(255, 5, 80, 150),
+                            fontSize: 28,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -83,17 +98,18 @@ class ProfilePage extends StatelessWidget {
                         Text(
                           userData['email'] ?? 'N/A', // User email
                           style: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(179, 69, 119, 199),
+                            fontSize: 16,
+                            color: Colors.white70,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Settings options
+                const SizedBox(height: 20),
+                // Settings options with custom styling
                 Padding(
-                  padding: const EdgeInsets.all(2.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Column(
                     children: [
                       _buildSettingOption(
@@ -123,39 +139,44 @@ class ProfilePage extends StatelessWidget {
                       _buildSettingOption(
                         icon: Icons.shopping_cart_checkout_sharp,
                         title: 'My Orders',
-                        onTap: () {Navigator.push(
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MyOrdersPage(),
+                              builder: (context) => const MyOrdersPage(),
                             ),
-                          );},
+                          );
+                        },
                       ),
                       _buildSettingOption(
                         icon: Icons.notifications,
                         title: 'Notifications',
-                        onTap: () {Navigator.push(
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => NotificationsPage(),
                             ),
-                          );},
+                          );
+                        },
                       ),
                       _buildSettingOption(
                         icon: Icons.help,
                         title: 'Help & Support',
-                        onTap: () {Navigator.push(
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SupportPage(),
                             ),
-                          );},
+                          );
+                        },
                       ),
                       _buildSettingOption(
                         icon: Icons.exit_to_app,
                         title: 'Logout',
                         onTap: () => _showLogoutDialog(context),
                       ),
-                      
                     ],
                   ),
                 ),
@@ -170,46 +191,30 @@ class ProfilePage extends StatelessWidget {
   Widget _buildSettingOption({
     required IconData icon,
     required String title,
-    required Function() onTap,
+    required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        leading: Icon(icon, size: 30, color: const Color.fromARGB(255, 78, 80, 84)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
         ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.blue, size: 28),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 18,
-              color: Colors.grey,
-            ),
-          ],
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 14,
+          color: Color.fromARGB(255, 157, 165, 178),
         ),
+        onTap: onTap,
       ),
     );
   }
@@ -217,25 +222,32 @@ class ProfilePage extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), // Close dialog
-            child: const Text('Cancel'),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
-          TextButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut(); // Logout from Firebase
-              Navigator.pop(context); // Close dialog
-              Navigator.pushReplacementNamed(
-                  context, '/login'); // Navigate to login
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
+          title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('Are you sure you want to logout?', style: TextStyle(fontSize: 16)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(fontSize: 16)),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              child: const Text('Logout', style: TextStyle(fontSize: 16, color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

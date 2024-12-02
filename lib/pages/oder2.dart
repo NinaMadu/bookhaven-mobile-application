@@ -34,7 +34,6 @@ class _Order2PageState extends State<Order2Page> {
 
   Future<void> _loadUserData() async {
     try {
-      // Get current user's UID
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception('User not logged in');
@@ -42,7 +41,6 @@ class _Order2PageState extends State<Order2Page> {
 
       final uid = user.uid;
 
-      // Fetch user data from Firestore
       final docSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
@@ -57,7 +55,6 @@ class _Order2PageState extends State<Order2Page> {
         throw Exception('User data not found');
       }
     } catch (e) {
-      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading user data: $e')),
       );
@@ -90,7 +87,6 @@ class _Order2PageState extends State<Order2Page> {
               ),
               child: Row(
                 children: [
-                  // Book Image
                   Container(
                     width: 80,
                     height: 100,
@@ -104,7 +100,6 @@ class _Order2PageState extends State<Order2Page> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  // Book Details
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,6 +327,7 @@ class _Order2PageState extends State<Order2Page> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.green,
                 ),
               ),
             ],
@@ -341,64 +337,42 @@ class _Order2PageState extends State<Order2Page> {
     );
   }
 
-  Future<void> confirmOrder() async {
-    if (_nameController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _addressController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill out all required fields.'),
-        ),
-      );
-      return;
-    }
-
+  Future<void> _confirmOrder() async {
     try {
-      // Get current user
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception('User not logged in');
       }
 
-      final uid = user.uid;
       final orderId = FirebaseFirestore.instance.collection('orders').doc().id;
 
-      // Prepare order data
       final orderData = {
-        'userId': uid,
-        'orderDate': DateTime.now(),
-        'items': widget.cartItems,
-        'fullName': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'address': _addressController.text.trim(),
-        'deliveryType': _deliveryType,
+        'userId': user.uid,
+        'userName': _nameController.text,
+        'userPhone': _phoneController.text,
+        'userAddress': _addressController.text,
         'paymentMethod': _paymentMethod,
-        'totalPrice': widget.totalPrice + _additionalDeliveryFee,
-        'additionalInstructions': _instructionsController.text.trim().isEmpty
-            ? null
-            : _instructionsController.text.trim(),
+        'deliveryType': _deliveryType,
+        'instructions': _instructionsController.text,
+        'totalAmount': widget.totalPrice + _additionalDeliveryFee,
+        'orderStatus': 'Pending',
+        'orderDate': Timestamp.now(),
+        'cartItems': widget.cartItems,
       };
 
-      // Save order to Firestore
       await FirebaseFirestore.instance
           .collection('orders')
           .doc(orderId)
           .set(orderData);
 
-      // Update user's orders list
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'orders': FieldValue.arrayUnion([orderId]),
-      });
-
-      // Show success message and navigate
+      // Clear the cart or navigate back to the cart page
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order confirmed successfully!')),
+        const SnackBar(content: Text('Order placed successfully!')),
       );
-      Navigator.pop(context); // Navigate back or to a success page
+      Navigator.pop(context);
     } catch (e) {
-      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error confirming order: $e')),
+        SnackBar(content: Text('Error placing order: $e')),
       );
     }
   }
@@ -407,58 +381,27 @@ class _Order2PageState extends State<Order2Page> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Summary'),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        title: const Text('Order Confirmation'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Customer info section
-              _buildCustomerInfo(),
-              const SizedBox(height: 16),
-
-              // Payment info section
-              _buildPaymentInfo(),
-              const SizedBox(height: 16),
-
-              // Delivery type section
-              _buildDeliveryType(),
-              const SizedBox(height: 16),
-
-              // Additional instructions section
-              _buildAdditionalInstructions(),
-              const SizedBox(height: 16),
-
-              // Cart items list
-
-              // Total price section
-              _buildTotalPrice(widget.totalPrice),
-              const SizedBox(height: 16),
-
-              // Submit button
-              Center(
-                child: ElevatedButton(
-                  onPressed: confirmOrder,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 2, 45, 121),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 60,
-                      vertical: 14,
-                    ),
-                    textStyle: const TextStyle(fontSize: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text('Confirm Order'),
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            _buildCustomerInfo(),
+            const SizedBox(height: 20),
+            _buildPaymentInfo(),
+            const SizedBox(height: 20),
+            _buildDeliveryType(),
+            const SizedBox(height: 20),
+            _buildAdditionalInstructions(),
+            const SizedBox(height: 20),
+            _buildTotalPrice(widget.totalPrice),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _confirmOrder,
+              child: const Text('Confirm Order'),
+            ),
+          ],
         ),
       ),
     );

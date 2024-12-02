@@ -1,18 +1,17 @@
 class OrderModel {
   final String userId;
   final DateTime orderDate;
-  final List<Map<String, dynamic>>
-      items; // List of book IDs and their quantities
+  final List<Map<String, dynamic>> items; // List of book IDs and their quantities
   final String fullName;
   final String phone;
   final String address;
   final String deliveryType;
   final String paymentMethod;
   final double totalPrice;
-  final String?
-      additionalInstructions; 
-// Nullable field for additional instructions
+  final String? additionalInstructions; // Nullable field for additional instructions
+  final String orderStatus; // New field for tracking order status
 
+  // Constructor with default orderStatus value
   OrderModel({
     required this.userId,
     required this.orderDate,
@@ -24,6 +23,7 @@ class OrderModel {
     required this.paymentMethod,
     required this.totalPrice,
     this.additionalInstructions, // This is nullable
+    this.orderStatus = 'pending', // Default value is 'pending'
   });
 
   // Convert the Order object to a Map to store in Firestore
@@ -38,8 +38,8 @@ class OrderModel {
       'deliveryType': deliveryType,
       'paymentMethod': paymentMethod,
       'totalPrice': totalPrice,
-      'additionalInstructions':
-          additionalInstructions, // Nullable, will be null if not provided
+      'additionalInstructions': additionalInstructions, // Nullable, will be null if not provided
+      'orderStatus': orderStatus, // Include the order status in the map
     };
   }
 
@@ -56,6 +56,7 @@ class OrderModel {
       paymentMethod: map['paymentMethod'] ?? '',
       totalPrice: map['totalPrice']?.toDouble() ?? 0.0,
       additionalInstructions: map['additionalInstructions'],
+      orderStatus: map['orderStatus'] ?? 'pending', // Default to 'pending' if not found
     );
   }
 }

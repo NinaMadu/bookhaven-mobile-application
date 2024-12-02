@@ -1,143 +1,160 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class MyOrdersPage extends StatelessWidget {
-  final List<Map<String, dynamic>> orders = [
-    {
-      'orderId': '123456',
-      'items': ['Book 1', 'Book 2'],
-      'totalPrice': 29.99,
-      'status': 'Shipped',
-      'orderDate': '2024-12-01',
-    },
-    {
-      'orderId': '789101',
-      'items': ['Book 3'],
-      'totalPrice': 15.99,
-      'status': 'Delivered',
-      'orderDate': '2024-11-20',
-    },
-    {
-      'orderId': '112233',
-      'items': ['Book 4', 'Book 5', 'Book 6'],
-      'totalPrice': 49.99,
-      'status': 'Processing',
-      'orderDate': '2024-12-05',
-    },
-  ];
+class MyOrdersPage extends StatefulWidget {
+  const MyOrdersPage({Key? key}) : super(key: key);
+
+  @override
+  State<MyOrdersPage> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<MyOrdersPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> orders = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOrders();
+  }
+
+  String? getCurrentUserId() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
+  Future<void> fetchOrders() async {
+    try {
+      final userId = getCurrentUserId();
+      if (userId != null) {
+        DocumentSnapshot userDoc = await _firestore
+            .collection('users')
+            .doc(userId)
+            .get();
+
+        if (userDoc.exists) {
+          List<dynamic> orderIds = userDoc['orders'] ?? [];
+          List<Map<String, dynamic>> fetchedOrders = [];
+
+          for (var orderId in orderIds) {
+            DocumentSnapshot orderDoc = await _firestore
+                .collection('orders')
+                .doc(orderId)
+                .get();
+
+            if (orderDoc.exists) {
+              fetchedOrders.add({
+                'orderId': orderDoc.id,
+                ...?orderDoc.data() as Map<String, dynamic>,
+              });
+            }
+          }
+
+          setState(() {
+            orders = fetchedOrders;
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching orders: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Orders"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Search functionality can be added here
-            },
-          ),
-        ],
+        title: const Text("Your Orders"),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: Colors.black,
       ),
-      body: orders.isEmpty
-          ? const Center(
-              child: Text(
-                "You have no orders yet.",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            )
-          : ListView.builder(
-              itemCount: orders.length,
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  elevation: 4,
-                  child: ListTile(
-                    title: Text('Order ID: ${order['orderId']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Items: ${order['items'].join(', ')}'),
-                        Text('Total: \$${order['totalPrice']}'),
-                        Text('Status: ${order['status']}'),
-                        Text('Order Date: ${order['orderDate']}'),
-                      ],
-                    ),
-                    trailing: Icon(
-                      order['status'] == 'Delivered'
-                          ? Icons.check_circle
-                          : order['status'] == 'Shipped'
-                              ? Icons.local_shipping
-                              : Icons.pending_actions,
-                      color: order['status'] == 'Delivered'
-                          ? Colors.green
-                          : order['status'] == 'Shipped'
-                              ? Colors.blue
-                              : Colors.orange,
-                    ),
-                    onTap: () {
-                      // Navigate to order details page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderDetailsPage(
-                            orderId: order['orderId'],
-                          ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : orders.isEmpty
+              ? const Center(child: Text("No orders found!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+              : ListView.builder(
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    List<dynamic> cartItems = order['cartItems'] ?? [];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        title: Text(
+                          "Order ID: ${order['orderId']}",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent),
                         ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            Text("Total Price: \$${order['totalPrice'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
+                            Text("Order Status: ${order['orderStatus'] ?? 'Order Placed'}", style: const TextStyle(fontSize: 16)),
+                            Text("Order Date: ${_formatTimestamp(order['orderDate'])}", style: const TextStyle(fontSize: 16)),
+                            const SizedBox(height: 10),
+                            const Text("Ordered Books:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            ...cartItems.map((item) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  children: [
+                                    Image.network(
+                                      item['imageUrl'],
+                                      width: 50,
+                                      height: 70,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        item['title'],
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Text("\$${item['price']} x ${item['quantity']}", style: const TextStyle(fontSize: 14)),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.blueAccent),
+                        onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => OrderDetailsScreen(orderData: order),
+                          //   ),
+                          // );
+                        },
+                      ),
+                    );
+                  },
+                ),
     );
   }
-}
 
-class OrderDetailsPage extends StatelessWidget {
-  final String orderId;
-
-  const OrderDetailsPage({required this.orderId});
-
-  @override
-  Widget build(BuildContext context) {
-    // You can replace the content below with actual order details
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Order Details - $orderId'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Order ID: $orderId',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const Text('Items: Book 1, Book 2, Book 3'),
-            const SizedBox(height: 8),
-            const Text('Total Price: \$29.99'),
-            const SizedBox(height: 8),
-            const Text('Status: Shipped'),
-            const SizedBox(height: 8),
-            const Text('Shipping Address: 123 Main St, City, Country'),
-            const SizedBox(height: 8),
-            const Text('Payment Method: Credit Card'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Handle button press (e.g., contact support, track order)
-              },
-              child: const Text('Contact Support'),
-            ),
-          ],
-        ),
-      ),
-    );
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'Unknown';
+    if (timestamp is Timestamp) {
+      DateTime dateTime = timestamp.toDate();
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+    }
+    return 'Invalid Date';
   }
 }
-
-void main() => runApp(MaterialApp(home: MyOrdersPage()));
