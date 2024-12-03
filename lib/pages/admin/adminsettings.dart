@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/admin/adminaccountsettings.dart';
+import 'package:bookshop/pages/admin/adminpasswordchange.dart';
 import 'package:bookshop/pages/notifications.dart';
 import 'package:bookshop/pages/supportpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -124,12 +125,12 @@ class AdminsettingsPage extends StatelessWidget {
                         icon: Icons.lock,
                         title: 'Change Password',
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => ChangePasswordScreen(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangeAdminPasswordPage(),
+                            ),
+                          );
                         },
                       ),
                       _buildSettingOption(
