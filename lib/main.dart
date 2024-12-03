@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/adminlogin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
@@ -28,7 +29,11 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignupPage(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => HomePage(),
-        '/admin-dashboard': (context) => AdminDashboard(), // Add Admin Dashboard route
+        '/adminlogin': (context) =>
+            const AdminLoginPage(), // Add route for HomePage
+
+        '/admin-dashboard': (context) =>
+            AdminDashboard(), // Add Admin Dashboard route
       },
     );
   }
