@@ -43,7 +43,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
         if (userDoc.exists) {
           // Admin found, navigate to admin dashboard
-          Navigator.pushNamed(context, '/admin_dashboard');
+          Navigator.pushNamed(context, '/admin-dashboard');
         } else {
           // If the user is not an admin
           _showErrorDialog('You are not an admin.');
