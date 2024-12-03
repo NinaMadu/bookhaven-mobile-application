@@ -221,28 +221,38 @@ class _HomePageState extends State<HomePage> {
                       mainAxisSpacing: 10,
                       childAspectRatio: 0.7,
                     ),
-                    itemCount: books
-                        .where((book) =>
-                            selectedCategory == "All" ||
-                            book["category"] == selectedCategory)
-                        .length,
+                    itemCount: books.where((book) {
+                      // Normalize both selectedCategory and book["category"]
+                      final normalizedSelectedCategory =
+                          selectedCategory.toLowerCase();
+                      final bookCategory =
+                          book["category"]?.toString().toLowerCase() ??
+                              "uncategorized";
+                      return normalizedSelectedCategory == "all" ||
+                          bookCategory == normalizedSelectedCategory;
+                    }).length,
                     itemBuilder: (context, index) {
-                      final filteredBooks = books
-                          .where((book) =>
-                              selectedCategory == "All" ||
-                              book["category"] == selectedCategory)
-                          .toList();
+                      final filteredBooks = books.where((book) {
+                        final normalizedSelectedCategory =
+                            selectedCategory.toLowerCase();
+                        final bookCategory =
+                            book["category"]?.toString().toLowerCase() ??
+                                "uncategorized";
+                        return normalizedSelectedCategory == "all" ||
+                            bookCategory == normalizedSelectedCategory;
+                      }).toList();
                       final book = filteredBooks[index];
                       return bookCard(
-                          book['title'], // Title of the book
-                          book['image'], // Image URL of the book
-                          book['price'], // Price of the book
-                          book['author'], // Author of the book
-                          book['description'],
-                          book['bookID']);
+                        book['title'], // Title of the book
+                        book['image'], // Image URL of the book
+                        book['price'], // Price of the book
+                        book['author'], // Author of the book
+                        book['description'],
+                        book['bookID'],
+                      );
                     },
                   ),
-          ),
+          )
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
