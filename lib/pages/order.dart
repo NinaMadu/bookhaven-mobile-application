@@ -407,8 +407,8 @@ class _OrderPageState extends State<OrderPage> {
   Widget _buildConfirmOrderButton() {
     return Center(
       child: ElevatedButton(
-        onPressed: () {
-          // Handle form submission
+        onPressed: () async {
+          await _confirmOrder();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 2, 45, 121),
@@ -427,7 +427,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  void _confirmOrder() async {
+  Future<void> _confirmOrder() async {
     // Check if all required fields are filled
     if (_nameController.text.isEmpty ||
         _phoneController.text.isEmpty ||
@@ -441,25 +441,45 @@ class _OrderPageState extends State<OrderPage> {
       return;
     }
 
-    // Create the order object
-    final order = OrderModel(
-      userId: FirebaseAuth.instance.currentUser!.uid,
-      orderDate: DateTime.now(),
-      items: [
-        {'bookId': widget.title, 'quantity': 1} // Example, modify as needed
-      ],
-      fullName: _nameController.text,
-      phone: _phoneController.text,
-      address: _addressController.text,
-      deliveryType: _deliveryType,
-      paymentMethod: _paymentMethod,
-      totalPrice: double.tryParse(widget.price) ?? 0.0 + _additionalDeliveryFee,
-      additionalInstructions: _instructionsController.text.isEmpty
-          ? null
-          : _instructionsController.text,
-    );
-
     try {
+      // Fetch the current book's document ID from Firestore
+      final bookQuerySnapshot = await FirebaseFirestore.instance
+          .collection('Book')
+          .where('title', isEqualTo: widget.title)
+          .get();
+
+      if (bookQuerySnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Book not found in database')),
+        );
+        return;
+      }
+
+      // Assuming the first match is the correct document
+      final bookDocId = bookQuerySnapshot.docs.first.id;
+
+      // Create the order object
+      final order = OrderModel(
+        userId: FirebaseAuth.instance.currentUser!.uid,
+        orderDate: DateTime.now(),
+        items: [
+          {
+            'bookId': bookDocId,
+            'quantity': 1
+          } // Save bookId as the document UID
+        ],
+        fullName: _nameController.text,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        deliveryType: _deliveryType,
+        paymentMethod: _paymentMethod,
+        totalPrice:
+            double.tryParse(widget.price) ?? 0.0 + _additionalDeliveryFee,
+        additionalInstructions: _instructionsController.text.isEmpty
+            ? null
+            : _instructionsController.text,
+      );
+
       // Add the order to the 'Orders' collection in Firestore
       final orderRef = FirebaseFirestore.instance.collection('orders').doc();
       await orderRef.set(order.toMap());
