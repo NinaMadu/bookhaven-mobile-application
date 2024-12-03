@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _AdminLoginPageState createState() => _AdminLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AdminLoginPageState extends State<AdminLoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -16,20 +17,39 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
 
-  Future<void> _loginUser() async {
+  // Admin login logic
+  Future<void> _loginAdmin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        await _auth.signInWithEmailAndPassword(
+        // Authenticate the user via Firebase Auth
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        // Navigate to the home page after successful login
-        Navigator.pushNamed(context, '/home');
+
+        // Check if the UID matches the admin document
+        String uid = userCredential.user?.uid ?? '';
+        print("Logged in user UID: $uid");
+
+        // Fetch the user details from Firestore to check if they are an admin
+        var userDoc = await FirebaseFirestore.instance
+            .collection('admin') // Ensure correct collection name here
+            .doc(uid) // Use the UID directly to reference the document
+            .get();
+
+        if (userDoc.exists) {
+          // Admin found, navigate to admin dashboard
+          Navigator.pushNamed(context, '/admin_dashboard');
+        } else {
+          // If the user is not an admin
+          _showErrorDialog('You are not an admin.');
+        }
       } on FirebaseAuthException catch (e) {
+        // Handle authentication errors
         String message = e.message ?? 'An error occurred';
         _showErrorDialog(message);
       } finally {
@@ -40,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // Error dialog for displaying messages
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -86,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
-                      'Login',
+                      'Admin Login',
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -144,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
-                            onPressed: _loginUser,
+                            onPressed: _loginAdmin,
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   const Color.fromARGB(255, 10, 85, 148),
@@ -167,19 +188,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 20),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/signup');
+                        Navigator.pushNamed(context,
+                            '/login'); // Option to log in as a regular user
                       },
                       child: const Text(
-                        "Don't have an account? Signup",
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/adminlogin');
-                      },
-                      child: const Text(
-                        "Login as Admin",
+                        "Login as a user",
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),
