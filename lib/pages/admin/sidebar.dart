@@ -6,7 +6,7 @@ class AdminSidebar extends StatefulWidget {
 }
 
 class _AdminSidebarState extends State<AdminSidebar> {
-  bool isExpanded = true; // State to track if the sidebar is expanded
+  bool isExpanded = false; // State to track if the sidebar is expanded
 
   @override
   Widget build(BuildContext context) {

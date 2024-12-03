@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/admin/sidebar.dart';
+import 'package:bookshop/pages/admin/usermanagement.dart';
 import 'package:flutter/material.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -9,7 +10,7 @@ class AdminDashboard extends StatelessWidget {
         children: [
           // Sidebar
           AdminSidebar(),
-          
+
           // Content Area
           Expanded(
             child: Column(
@@ -74,7 +75,12 @@ class AdminDashboard extends StatelessWidget {
                           icon: Icons.people,
                           label: 'Manage Users',
                           onTap: () {
-                            // Navigate to Manage Users
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserManagementPage(),
+                              ),
+                            );
                           },
                         ),
                         _buildActionButton(
