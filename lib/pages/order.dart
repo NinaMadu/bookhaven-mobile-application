@@ -455,8 +455,11 @@ class _OrderPageState extends State<OrderPage> {
         return;
       }
 
-      // Assuming the first match is the correct document
+// Accessing the Firestore Document ID (the unique identifier of the book)
       final bookDocId = bookQuerySnapshot.docs.first.id;
+
+// You can now use `bookDocId` as the identifier for that book document
+      print("Book Document ID: $bookDocId");
 
       // Create the order object
       final order = OrderModel(
