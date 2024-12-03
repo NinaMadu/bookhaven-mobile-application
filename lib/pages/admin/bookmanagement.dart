@@ -1,4 +1,5 @@
 import 'package:bookshop/pages/admin/addnewbook.dart';
+import 'package:bookshop/pages/admin/editbookpage.dart'; // Import the EditBookPage
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,8 @@ class BookManagementPage extends StatelessWidget {
             itemCount: books.length,
             itemBuilder: (context, index) {
               var book = books[index];
-              var bookId = book.id;  // Using Firestore document ID as the unique UID
+              var bookId =
+                  book.id; // Using Firestore document ID as the unique UID
               var title = book['title'] ?? 'No Title';
               var price = book['price'] ?? 'No Price';
               var author = book['author'] ?? 'No Author';
@@ -43,42 +45,37 @@ class BookManagementPage extends StatelessWidget {
 
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  leading: imageUrl.isNotEmpty
-                      ? Image.network(imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-                      : Icon(Icons.book, size: 50),
-                  title: Text(title),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Author: $author'),
-                      Text('Category: $category'),
-                      Text('Price: $price'),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Edit button (if needed)
-                      // IconButton(
-                      //   icon: Icon(Icons.edit),
-                      //   onPressed: () {
-                      //     // Navigate to the edit page with the bookId to edit the book
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(builder: (context) => EditBookPage(bookId: bookId)),
-                      //     );
-                      //   },
-                      // ),
-                      // Delete button
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          // Show a confirmation dialog and delete the book
-                          _deleteBook(context, bookId);
-                        },
-                      ),
-                    ],
+                child: GestureDetector(
+                  // Wrap the ListTile with GestureDetector to detect taps
+                  onTap: () {
+                    // Navigate to the EditBookPage with the bookId
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditBookPage(bookId: bookId)),
+                    );
+                  },
+                  child: ListTile(
+                    leading: imageUrl.isNotEmpty
+                        ? Image.network(imageUrl,
+                            width: 50, height: 50, fit: BoxFit.cover)
+                        : Icon(Icons.book, size: 50),
+                    title: Text(title),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Author: $author'),
+                        Text('Category: $category'),
+                        Text('Price: $price'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        // Show a confirmation dialog and delete the book
+                        _deleteBook(context, bookId);
+                      },
+                    ),
                   ),
                 ),
               );
@@ -86,10 +83,10 @@ class BookManagementPage extends StatelessWidget {
           );
         },
       ),
-      //Floating Action Button for adding new book (if needed)
+      // Floating Action Button for adding new book (if needed)
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //Navigate to the page where the admin can add a new book
+          // Navigate to the page where the admin can add a new book
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AddNewBookPage()),
@@ -104,9 +101,11 @@ class BookManagementPage extends StatelessWidget {
   Future<void> _deleteBook(BuildContext context, String bookId) async {
     try {
       await FirebaseFirestore.instance.collection('Book').doc(bookId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Book deleted successfully')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Book deleted successfully')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete book')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to delete book')));
     }
   }
 }
