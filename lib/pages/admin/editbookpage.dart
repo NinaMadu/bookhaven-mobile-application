@@ -1,24 +1,25 @@
-import 'package:bookshop/models/book_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:bookshop/models/book_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AddNewBookPage extends StatefulWidget {
+class EditBookPage extends StatefulWidget {
+  final String bookId; // Assuming this is passed as a parameter
+  const EditBookPage({Key? key, required this.bookId}) : super(key: key);
+
   @override
-  _AddNewBookPageState createState() => _AddNewBookPageState();
+  _EditBookPageState createState() => _EditBookPageState();
 }
 
-class _AddNewBookPageState extends State<AddNewBookPage> {
+class _EditBookPageState extends State<EditBookPage> {
   final _formKey = GlobalKey<FormState>();
-  String title = '';
-  String author = '';
-  String category = 'Fiction'; // Default value from the categories list
-  double price = 0.0;
-  String imageUrl = '';
+  late TextEditingController titleController;
+  late TextEditingController authorController;
+  late TextEditingController priceController;
+  late TextEditingController imageUrlController;
+
+  String category = 'Fiction'; // Default category
   double rating = 0.0;
   bool _isImageValid = true;
 
-  // List of categories
   final List<String> categories = [
     "Fiction",
     "Non-fiction",
@@ -28,53 +29,96 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
     "Other"
   ];
 
-  // Function to add a new book to Firestore
-  Future<void> _addBook() async {
+  @override
+  void initState() {
+    super.initState();
+
+    titleController = TextEditingController();
+    authorController = TextEditingController();
+    priceController = TextEditingController();
+    imageUrlController = TextEditingController();
+
+    _loadBookData();
+  }
+
+  Future<void> _loadBookData() async {
+    try {
+      var bookData = await FirebaseFirestore.instance
+          .collection('Book')
+          .doc(widget.bookId)
+          .get();
+
+      if (bookData.exists) {
+        setState(() {
+          titleController.text = bookData['title'] ?? '';
+          authorController.text = bookData['author'] ?? '';
+          category = bookData['category'] ?? 'Fiction'; // Default value
+          priceController.text = (bookData['price'] is double)
+              ? bookData['price'].toString()
+              : (bookData['price'] is int)
+                  ? (bookData['price'] as int).toDouble().toString()
+                  : '0.0';
+          imageUrlController.text = bookData['image'] ?? '';
+          rating = (bookData['rating'] is double)
+              ? bookData['rating']
+              : (bookData['rating'] is int)
+                  ? (bookData['rating'] as int).toDouble()
+                  : 0.0;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Book not found')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to load book data')));
+    }
+  }
+
+  Future<void> _updateBook() async {
     if (_formKey.currentState!.validate() && _isImageValid) {
       try {
-        // Create an instance of Book using the entered data
-        Book newBook = Book(
-          title: title,
-          author: author,
-          category: category,
-          description: '', // Add description if needed
-          image: imageUrl,
-          price: price,
-          rating: rating,
-        );
-
-        // Add the book to the Firestore collection
         await FirebaseFirestore.instance
             .collection('Book')
-            .add(newBook.toMap());
+            .doc(widget.bookId)
+            .update({
+          'title': titleController.text,
+          'author': authorController.text,
+          'category': category,
+          'price': double.tryParse(priceController.text) ?? 0.0,
+          'image': imageUrlController.text,
+        });
 
-        // Show success message
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Book added successfully')));
-
-        // Go back to the previous screen
+            .showSnackBar(SnackBar(content: Text('Book updated successfully')));
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to add book')));
+            .showSnackBar(SnackBar(content: Text('Failed to update book')));
       }
     }
   }
 
-  // Method to validate image URL
   void _validateImageUrl(String value) {
     setState(() {
-      imageUrl = value;
-      // Check if the URL is a valid image URL
       _isImageValid = Uri.tryParse(value)?.hasAbsolutePath ?? false;
     });
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    authorController.dispose();
+    priceController.dispose();
+    imageUrlController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Book'),
+        title: Text("Edit Book"),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -83,30 +127,25 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
           child: ListView(
             children: [
               TextFormField(
+                controller: titleController,
                 decoration: InputDecoration(labelText: 'Title'),
-                onChanged: (value) => setState(() => title = value),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter a title' : null,
               ),
               TextFormField(
+                controller: authorController,
                 decoration: InputDecoration(labelText: 'Author'),
-                onChanged: (value) => setState(() => author = value),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter an author' : null,
               ),
-              // Dropdown for category selection
               DropdownButtonFormField<String>(
-                value:
-                    category, // Ensure the value is part of the categories list
+                value: category,
                 decoration: InputDecoration(labelText: 'Category'),
                 onChanged: (String? newValue) {
                   setState(() {
                     category = newValue!;
                   });
                 },
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please select a category'
-                    : null,
                 items: categories.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -115,16 +154,16 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
                 }).toList(),
               ),
               TextFormField(
+                controller: priceController,
                 decoration: InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
-                onChanged: (value) =>
-                    setState(() => price = double.tryParse(value) ?? 0.0),
                 validator: (value) =>
                     value!.isEmpty || double.tryParse(value) == null
                         ? 'Please enter a valid price'
                         : null,
               ),
               TextFormField(
+                controller: imageUrlController,
                 decoration: InputDecoration(labelText: 'Image URL'),
                 onChanged: _validateImageUrl,
                 validator: (value) =>
@@ -138,16 +177,14 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
-              if (imageUrl.isNotEmpty && _isImageValid)
+              if (imageUrlController.text.isNotEmpty && _isImageValid)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Image.network(
-                    imageUrl,
-                    width: 120, // Set a fixed width
-                    height:
-                        200, // Set the height to show the full height of the image
-                    fit: BoxFit
-                        .fitHeight, // Maintain full height and scale width accordingly
+                    imageUrlController.text,
+                    width: 120,
+                    height: 200,
+                    fit: BoxFit.fitHeight,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) {
                         return child;
@@ -162,8 +199,8 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
                 ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _addBook,
-                child: Text('Add Book'),
+                onPressed: _updateBook,
+                child: Text('Update Book'),
               ),
             ],
           ),
