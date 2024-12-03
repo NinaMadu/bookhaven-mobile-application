@@ -1,6 +1,7 @@
 import 'package:bookshop/pages/admin/ordermanagement.dart';
 import 'package:bookshop/pages/admin/sidebar.dart';
 import 'package:bookshop/pages/admin/usermanagement.dart';
+import 'package:bookshop/pages/admin/bookmanagement.dart';
 import 'package:flutter/material.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -85,10 +86,15 @@ class AdminDashboard extends StatelessWidget {
                           },
                         ),
                         _buildActionButton(
-                          icon: Icons.book,
+                          icon: Icons.book_online_rounded,
                           label: 'Manage Books',
                           onTap: () {
-                            // Navigate to Manage Books
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookManagementPage(),
+                              ),
+                            );
                           },
                         ),
                         _buildActionButton(
