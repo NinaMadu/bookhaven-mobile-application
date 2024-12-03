@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.1.7
   flutter_svg: ^2.0.14
+  intl: ^0.18.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -72,6 +73,8 @@ flutter:
     - assets/icons/images/signup_bg.png
     - assets/icons/images/book.png
     - assets/icons/images/profile.png
+    - assets/icons/images/admin.png
+    - assets/icons/images/admin2.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

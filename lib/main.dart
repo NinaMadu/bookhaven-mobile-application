@@ -1,10 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:bookshop/pages/home.dart';
-import 'package:flutter/material.dart';
 import 'package:bookshop/pages/loginpage.dart';
 import 'package:bookshop/pages/signuppage.dart';
 import 'package:bookshop/pages/welcomepage.dart';
+import 'package:bookshop/pages/admin/dashboard.dart'; // Import Admin Dashboard
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => const WelcomePage(),
         '/signup': (context) => const SignupPage(),
         '/login': (context) => const LoginPage(),
-        '/home': (context) => HomePage(), // Add route for HomePage
+        '/home': (context) => HomePage(),
+        '/admin-dashboard': (context) => AdminDashboard(), // Add Admin Dashboard route
       },
     );
   }
