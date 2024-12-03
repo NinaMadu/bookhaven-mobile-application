@@ -72,6 +72,17 @@ class AdminsettingsPage extends StatelessWidget {
                 // Profile header
                 Container(
                   height: 250,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blueAccent, Colors.purpleAccent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +99,7 @@ class AdminsettingsPage extends StatelessWidget {
                           userData['username'] ?? 'N/A', // Username
                           style: const TextStyle(
                             fontSize: 26,
-                            color: Color.fromARGB(255, 5, 80, 150),
+                            color: Color.fromARGB(255, 252, 252, 252),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -97,7 +108,7 @@ class AdminsettingsPage extends StatelessWidget {
                           userData['email'] ?? 'N/A', // User email
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Color.fromARGB(179, 69, 119, 199),
+                            color: Color.fromARGB(235, 255, 255, 255),
                           ),
                         ),
                       ],
@@ -186,13 +197,13 @@ class AdminsettingsPage extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.blue, size: 28),
+            Icon(icon, color: const Color.fromARGB(255, 179, 204, 224), size: 28),
             const SizedBox(width: 20),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.1,
                   color: Colors.black87,
@@ -201,7 +212,7 @@ class AdminsettingsPage extends StatelessWidget {
             ),
             const Icon(
               Icons.arrow_forward_ios,
-              size: 18,
+              size: 14,
               color: Colors.grey,
             ),
           ],
