@@ -72,6 +72,8 @@ flutter:
     - assets/icons/images/signup_bg.png
     - assets/icons/images/book.png
     - assets/icons/images/profile.png
+    - assets/icons/images/admin.png
+    - assets/icons/images/admin2.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
