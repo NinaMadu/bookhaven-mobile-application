@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/admin/usermanagement.dart';
 import 'package:flutter/material.dart';
 
 class AdminSidebar extends StatefulWidget {
@@ -58,8 +59,13 @@ class _AdminSidebarState extends State<AdminSidebar> {
             title: 'Manage Users',
             isExpanded: isExpanded,
             onTap: () {
-              // Navigate to Manage Users
-            },
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserManagementPage(),
+                              ),
+                            );
+                          },
           ),
           SidebarItem(
             icon: Icons.settings,

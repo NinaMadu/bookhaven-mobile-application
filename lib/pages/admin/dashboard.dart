@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/admin/ordermanagement.dart';
 import 'package:bookshop/pages/admin/sidebar.dart';
 import 'package:bookshop/pages/admin/usermanagement.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +46,9 @@ class AdminDashboard extends StatelessWidget {
                         child: Text(
                           'Welcome back, Admin!',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: const Color.fromARGB(255, 3, 9, 38),
                             shadows: [
                               Shadow(
                                 offset: Offset(0, 2),
@@ -91,10 +92,15 @@ class AdminDashboard extends StatelessWidget {
                           },
                         ),
                         _buildActionButton(
-                          icon: Icons.shopping_cart,
-                          label: 'View Orders',
+                          icon: Icons.people,
+                          label: 'Manage Orders',
                           onTap: () {
-                            // Navigate to View Orders
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrderManagementPage(),
+                              ),
+                            );
                           },
                         ),
                         _buildActionButton(
