@@ -1,3 +1,5 @@
+import 'package:bookshop/pages/accountsettings.dart';
+import 'package:bookshop/pages/admin/adminsettings.dart';
 import 'package:bookshop/pages/admin/ordermanagement.dart';
 import 'package:bookshop/pages/admin/sidebar.dart';
 import 'package:bookshop/pages/admin/usermanagement.dart';
@@ -113,7 +115,12 @@ class AdminDashboard extends StatelessWidget {
                           icon: Icons.settings,
                           label: 'Settings',
                           onTap: () {
-                            // Navigate to Settings
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AdminsettingsPage(),
+                              ),
+                            );
                           },
                         ),
                       ],
