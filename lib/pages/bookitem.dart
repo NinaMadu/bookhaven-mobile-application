@@ -156,7 +156,7 @@ class BookItemPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            price,
+                            "Price: LKR $price",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

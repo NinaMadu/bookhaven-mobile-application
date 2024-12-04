@@ -160,7 +160,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      "Price: \$${item["price"].toStringAsFixed(2)}",
+                                      "Price: \LKR ${item["price"].toStringAsFixed(2)}",
                                       style: const TextStyle(
                                         color: Colors.grey,
                                         fontSize: 14,

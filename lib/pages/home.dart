@@ -321,7 +321,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: Text(
-                    "\$${price.toString()}",
+                    "\LKR ${price.toString()}",
                     style: const TextStyle(color: Colors.blue),
                   ),
                 ),

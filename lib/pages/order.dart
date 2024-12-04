@@ -167,7 +167,7 @@ class _OrderPageState extends State<OrderPage> {
                 Text(
                   widget.title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -178,7 +178,7 @@ class _OrderPageState extends State<OrderPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Price: ${widget.price}',
+                  'Price: LKR ${widget.price}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -360,7 +360,7 @@ class _OrderPageState extends State<OrderPage> {
                 style: TextStyle(fontSize: 16),
               ),
               Text(
-                '\$${widget.price}',
+                '\LKR ${widget.price}',
                 style: const TextStyle(fontSize: 16),
               ),
             ],
@@ -374,7 +374,7 @@ class _OrderPageState extends State<OrderPage> {
                 style: TextStyle(fontSize: 16),
               ),
               Text(
-                '\$$_additionalDeliveryFee',
+                '\LKR $_additionalDeliveryFee',
                 style: const TextStyle(fontSize: 16),
               ),
             ],
@@ -391,7 +391,7 @@ class _OrderPageState extends State<OrderPage> {
                 ),
               ),
               Text(
-                '\$${totalPrice.toStringAsFixed(2)}',
+                '\LKR ${totalPrice.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
