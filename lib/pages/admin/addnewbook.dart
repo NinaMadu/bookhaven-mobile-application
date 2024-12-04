@@ -115,7 +115,7 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
                 }).toList(),
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: InputDecoration(labelText: 'Price (LKR)'),
                 keyboardType: TextInputType.number,
                 onChanged: (value) =>
                     setState(() => price = double.tryParse(value) ?? 0.0),

@@ -66,7 +66,7 @@ class BookManagementPage extends StatelessWidget {
                       children: [
                         Text('Author: $author'),
                         Text('Category: $category'),
-                        Text('Price: $price'),
+                        Text('Price: LKR $price'),
                       ],
                     ),
                     trailing: IconButton(

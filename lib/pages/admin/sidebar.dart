@@ -1,3 +1,7 @@
+import 'package:bookshop/pages/admin/adminsettings.dart';
+import 'package:bookshop/pages/admin/bookmanagement.dart';
+import 'package:bookshop/pages/admin/dashboard.dart';
+import 'package:bookshop/pages/admin/ordermanagement.dart';
 import 'package:bookshop/pages/admin/usermanagement.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +29,9 @@ class _AdminSidebarState extends State<AdminSidebar> {
             },
             child: DrawerHeader(
               child: Icon(
-                isExpanded ? Icons.arrow_back_ios_new_sharp : Icons.arrow_forward_ios_sharp,
+                isExpanded
+                    ? Icons.arrow_back_ios_new_sharp
+                    : Icons.arrow_forward_ios_sharp,
                 size: 20,
               ),
             ),
@@ -35,7 +41,12 @@ class _AdminSidebarState extends State<AdminSidebar> {
             title: 'Dashboard',
             isExpanded: isExpanded,
             onTap: () {
-              // Navigate to Dashboard
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminDashboard(),
+                ),
+              );
             },
           ),
           SidebarItem(
@@ -43,7 +54,12 @@ class _AdminSidebarState extends State<AdminSidebar> {
             title: 'Manage Books',
             isExpanded: isExpanded,
             onTap: () {
-              // Navigate to Manage Books
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookManagementPage(),
+                ),
+              );
             },
           ),
           SidebarItem(
@@ -51,7 +67,12 @@ class _AdminSidebarState extends State<AdminSidebar> {
             title: 'View Orders',
             isExpanded: isExpanded,
             onTap: () {
-              // Navigate to View Orders
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OrderManagementPage(),
+                ),
+              );
             },
           ),
           SidebarItem(
@@ -59,20 +80,25 @@ class _AdminSidebarState extends State<AdminSidebar> {
             title: 'Manage Users',
             isExpanded: isExpanded,
             onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UserManagementPage(),
-                              ),
-                            );
-                          },
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserManagementPage(),
+                ),
+              );
+            },
           ),
           SidebarItem(
             icon: Icons.settings,
             title: 'Settings',
             isExpanded: isExpanded,
             onTap: () {
-              // Navigate to Settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminsettingsPage(),
+                ),
+              );
             },
           ),
         ],
