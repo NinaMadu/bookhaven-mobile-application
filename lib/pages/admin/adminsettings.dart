@@ -5,8 +5,7 @@ import 'package:bookshop/pages/supportpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//import 'accountsettings.dart';
-//import 'changepassword.dart';
+
 
 class AdminsettingsPage extends StatelessWidget {
   const AdminsettingsPage({super.key});

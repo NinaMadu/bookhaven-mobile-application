@@ -75,7 +75,7 @@ class OrderManagementPage extends StatelessWidget {
                           Text('Email: $userEmail'),
                           Text('Phone: $userPhone'),
                           Text('Order Date: $formattedOrderDate'),
-                          Text('Total Amount: $totalAmount'),
+                          Text('Total Amount (LKR): $totalAmount'),
                         ],
                       ),
                       onTap: () {
