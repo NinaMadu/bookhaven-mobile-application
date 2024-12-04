@@ -129,7 +129,7 @@ class _Order2PageState extends State<Order2Page> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          "\$${(item['price'] * item['quantity']).toStringAsFixed(2)}",
+                          "\LKR ${(item['price'] * item['quantity']).toStringAsFixed(2)}",
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -231,7 +231,8 @@ class _Order2PageState extends State<Order2Page> {
           onChanged: (String? newValue) {
             setState(() {
               _deliveryType = newValue!;
-              _additionalDeliveryFee = newValue == 'Fast Delivery' ? 50.0 : 0.0;
+              _additionalDeliveryFee =
+                  newValue == 'Fast Delivery' ? 200.0 : 0.0;
             });
           },
           items: <String>['Normal Delivery', 'Fast Delivery']
@@ -297,7 +298,7 @@ class _Order2PageState extends State<Order2Page> {
                 style: TextStyle(fontSize: 16),
               ),
               Text(
-                '\$${widget.totalPrice}',
+                '\LKR ${widget.totalPrice}',
                 style: const TextStyle(fontSize: 16),
               ),
             ],
@@ -311,7 +312,7 @@ class _Order2PageState extends State<Order2Page> {
                 style: TextStyle(fontSize: 16),
               ),
               Text(
-                '\$$_additionalDeliveryFee',
+                '\LKR $_additionalDeliveryFee',
                 style: const TextStyle(fontSize: 16),
               ),
             ],
@@ -328,7 +329,7 @@ class _Order2PageState extends State<Order2Page> {
                 ),
               ),
               Text(
-                '\$${(widget.totalPrice + _additionalDeliveryFee).toStringAsFixed(2)}',
+                '\LKR ${(widget.totalPrice + _additionalDeliveryFee).toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

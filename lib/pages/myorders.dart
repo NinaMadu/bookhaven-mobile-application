@@ -41,9 +41,35 @@ class _OrdersScreenState extends State<MyOrdersPage> {
                 await _firestore.collection('orders').doc(orderId).get();
 
             if (orderDoc.exists) {
+              Map<String, dynamic> orderData =
+                  orderDoc.data() as Map<String, dynamic>;
+
+              List<dynamic> items = orderData['items'] ?? [];
+              List<Map<String, dynamic>> cartItems = [];
+
+              for (var item in items) {
+                String bookId = item['bookId'];
+                int quantity = item['quantity'];
+                DocumentSnapshot bookDoc =
+                    await _firestore.collection('Book').doc(bookId).get();
+
+                if (bookDoc.exists) {
+                  Map<String, dynamic> bookData =
+                      bookDoc.data() as Map<String, dynamic>;
+                  cartItems.add({
+                    'bookId': bookId,
+                    'title': bookData['title'] ?? 'Unknown Title',
+                    'imageUrl': bookData['imageUrl'] ?? '',
+                    'price': bookData['price'] ?? 0,
+                    'quantity': quantity,
+                  });
+                }
+              }
+
               fetchedOrders.add({
                 'orderId': orderDoc.id,
-                ...?orderDoc.data() as Map<String, dynamic>,
+                'cartItems': cartItems,
+                ...orderData,
               });
             }
           }
@@ -107,7 +133,7 @@ class _OrdersScreenState extends State<MyOrdersPage> {
                           children: [
                             const SizedBox(height: 10),
                             Text(
-                                "Total Price: \$${order['totalPrice'] ?? 'N/A'}",
+                                "Total Price: \LKR ${order['totalPrice'] ?? 'N/A'}",
                                 style: const TextStyle(fontSize: 16)),
                             Text(
                                 "Order Status: ${order['orderStatus'] ?? 'Order Placed'}",
@@ -125,12 +151,16 @@ class _OrdersScreenState extends State<MyOrdersPage> {
                                     const EdgeInsets.symmetric(vertical: 8),
                                 child: Row(
                                   children: [
-                                    Image.network(
-                                      item['imageUrl'],
-                                      width: 50,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                    ),
+                                    item['imageUrl'].isNotEmpty
+                                        ? Image.network(
+                                            item['imageUrl'],
+                                            width: 50,
+                                            height: 70,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : const Icon(Icons.image,
+                                            size:
+                                                50), // Fallback for missing images
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
@@ -141,8 +171,9 @@ class _OrdersScreenState extends State<MyOrdersPage> {
                                       ),
                                     ),
                                     Text(
-                                        "\$${item['price']} x ${item['quantity']}",
-                                        style: const TextStyle(fontSize: 14)),
+                                      "\LKR ${item['price']} x ${item['quantity']}",
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
                                   ],
                                 ),
                               );
@@ -168,10 +199,19 @@ class _OrdersScreenState extends State<MyOrdersPage> {
 
   String _formatTimestamp(dynamic timestamp) {
     if (timestamp == null) return 'Unknown';
+
     if (timestamp is Timestamp) {
       DateTime dateTime = timestamp.toDate();
       return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+    } else if (timestamp is String) {
+      try {
+        DateTime dateTime = DateTime.parse(timestamp);
+        return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+      } catch (e) {
+        return 'Invalid Date';
+      }
     }
-    return 'Invalid Date';
+
+    return 'Invalid Date';
   }
 }
