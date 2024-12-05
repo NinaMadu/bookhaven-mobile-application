@@ -74,6 +74,13 @@ class _OrdersScreenState extends State<MyOrdersPage> {
             }
           }
 
+          // Sort the orders by orderDate in descending order
+          fetchedOrders.sort((a, b) {
+            DateTime dateA = _convertToDateTime(a['orderDate']);
+            DateTime dateB = _convertToDateTime(b['orderDate']);
+            return dateB.compareTo(dateA); // Descending order
+          });
+
           setState(() {
             orders = fetchedOrders;
             isLoading = false;
@@ -90,6 +97,19 @@ class _OrdersScreenState extends State<MyOrdersPage> {
         isLoading = false;
       });
     }
+  }
+
+  DateTime _convertToDateTime(dynamic timestamp) {
+    if (timestamp is Timestamp) {
+      return timestamp.toDate();
+    } else if (timestamp is String) {
+      try {
+        return DateTime.parse(timestamp);
+      } catch (e) {
+        return DateTime.now(); // Default to now if parsing fails
+      }
+    }
+    return DateTime.now(); // Default to now for invalid types
   }
 
   @override
@@ -158,7 +178,7 @@ class _OrdersScreenState extends State<MyOrdersPage> {
                                             height: 70,
                                             fit: BoxFit.cover,
                                           )
-                                        : const Icon(Icons.image,
+                                        : const Icon(Icons.book_rounded,
                                             size:
                                                 50), // Fallback for missing images
                                     const SizedBox(width: 10),

@@ -143,7 +143,7 @@ class AdminDashboard extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(20),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: const Color.fromARGB(255, 197, 108, 226),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

@@ -214,7 +214,7 @@ class _CartPageState extends State<CartPage> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      "Price: \$${item["price"].toStringAsFixed(2)}",
+                                      "Price: \LKR ${item["price"].toStringAsFixed(2)}",
                                       style: const TextStyle(
                                         color: Colors.grey,
                                         fontSize: 14,
@@ -261,7 +261,7 @@ class _CartPageState extends State<CartPage> {
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "\$${getSubtotal().toStringAsFixed(2)}",
+                          "\LKR ${getSubtotal().toStringAsFixed(2)}",
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),

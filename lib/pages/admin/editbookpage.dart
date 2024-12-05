@@ -200,6 +200,16 @@ class _EditBookPageState extends State<EditBookPage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _updateBook,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple, // Purple background
+                  foregroundColor: Colors.white, // White text color
+                  padding: EdgeInsets.symmetric(
+                      vertical: 16), // Optional: Add padding
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(8), // Optional: Rounded corners
+                  ),
+                ),
                 child: Text('Update Book'),
               ),
             ],

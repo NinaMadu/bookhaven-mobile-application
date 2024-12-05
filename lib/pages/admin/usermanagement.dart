@@ -1,3 +1,4 @@
+import 'package:bookshop/pages/admin/userdetail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -39,8 +40,12 @@ class UserManagementPage extends StatelessWidget {
                   title: Text(name, style: TextStyle(fontSize: 18)),
                   subtitle: Text(email),
                   onTap: () {
-                    // You can navigate to a detailed user page if needed
-                    print('Tapped on user: $name');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailPage(userId: userId),
+                      ),
+                    );
                   },
                 ),
               );

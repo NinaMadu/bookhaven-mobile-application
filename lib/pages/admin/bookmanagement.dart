@@ -92,6 +92,8 @@ class BookManagementPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AddNewBookPage()),
           );
         },
+        backgroundColor: Colors.purple,
+        foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
     );
