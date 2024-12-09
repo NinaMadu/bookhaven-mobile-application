@@ -123,116 +123,109 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Offers Section
-          if (offers.isNotEmpty) ...[
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Offers Section
+            if (offers.isNotEmpty) ...[
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Offers",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: offers.length,
+                  itemBuilder: (context, index) {
+                    final offer = offers[index];
+                    return offerCard(offer["title"], offer["image"]);
+                  },
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 16),
+
+            // Categories Section
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                "Offers",
+                "Categories",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             ),
             SizedBox(
-              height: 150,
+              height: 50,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: offers.length,
+                itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  final offer = offers[index];
-                  return offerCard(offer["title"], offer["image"]);
-                },
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 16),
-
-          // Categories Section
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              "Categories",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-          ),
-          SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                final isSelected = category == selectedCategory;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedCategory = category;
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(
-                      child: Text(
-                        category,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.bold,
+                  final category = categories[index];
+                  final isSelected = category == selectedCategory;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedCategory = category;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          category,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Books Related to the Selected Category
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              selectedCategory == "All"
-                  ? "All Books"
-                  : "$selectedCategory Books",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            // Books Related to the Selected Category
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                selectedCategory == "All"
+                    ? "All Books"
+                    : "$selectedCategory Books",
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Display Books
-          Expanded(
-            child: books.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemCount: books.where((book) {
-                      // Normalize both selectedCategory and book["category"]
-                      final normalizedSelectedCategory =
-                          selectedCategory.toLowerCase();
-                      final bookCategory =
-                          book["category"]?.toString().toLowerCase() ??
-                              "uncategorized";
-                      return normalizedSelectedCategory == "all" ||
-                          bookCategory == normalizedSelectedCategory;
-                    }).length,
-                    itemBuilder: (context, index) {
-                      final filteredBooks = books.where((book) {
+            // Display Books
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: books.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.7,
+                      ),
+                      itemCount: books.where((book) {
+                        // Normalize both selectedCategory and book["category"]
                         final normalizedSelectedCategory =
                             selectedCategory.toLowerCase();
                         final bookCategory =
@@ -240,20 +233,31 @@ class _HomePageState extends State<HomePage> {
                                 "uncategorized";
                         return normalizedSelectedCategory == "all" ||
                             bookCategory == normalizedSelectedCategory;
-                      }).toList();
-                      final book = filteredBooks[index];
-                      return bookCard(
-                        book['title'], // Title of the book
-                        book['image'], // Image URL of the book
-                        book['price'], // Price of the book
-                        book['author'], // Author of the book
-                        book['description'],
-                        book['bookID'],
-                      );
-                    },
-                  ),
-          )
-        ],
+                      }).length,
+                      itemBuilder: (context, index) {
+                        final filteredBooks = books.where((book) {
+                          final normalizedSelectedCategory =
+                              selectedCategory.toLowerCase();
+                          final bookCategory =
+                              book["category"]?.toString().toLowerCase() ??
+                                  "uncategorized";
+                          return normalizedSelectedCategory == "all" ||
+                              bookCategory == normalizedSelectedCategory;
+                        }).toList();
+                        final book = filteredBooks[index];
+                        return bookCard(
+                          book['title'], // Title of the book
+                          book['image'], // Image URL of the book
+                          book['price'], // Price of the book
+                          book['author'], // Author of the book
+                          book['description'],
+                          book['bookID'],
+                        );
+                      },
+                    ),
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
