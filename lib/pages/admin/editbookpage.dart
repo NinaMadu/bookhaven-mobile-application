@@ -201,7 +201,7 @@ class _EditBookPageState extends State<EditBookPage> {
               ElevatedButton(
                 onPressed: _updateBook,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple, // Purple background
+                  backgroundColor: const Color.fromARGB(255, 87, 16, 100), // Purple background
                   foregroundColor: Colors.white, // White text color
                   padding: EdgeInsets.symmetric(
                       vertical: 16), // Optional: Add padding

@@ -92,7 +92,7 @@ class BookManagementPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AddNewBookPage()),
           );
         },
-        backgroundColor: Colors.purple,
+        backgroundColor: const Color.fromARGB(255, 93, 28, 105),
         foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),

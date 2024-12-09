@@ -145,7 +145,7 @@ class _AdminAccountSettingsState extends State<AdminAccountSettings> {
                       _buildButton(
                         label: 'Save',
                         onPressed: _saveUpdates,
-                        color: const Color.fromARGB(255, 19, 31, 99),
+                        color: const Color.fromARGB(255, 90, 19, 99),
                         textColor: Colors.white,
                       ),
                     ],
