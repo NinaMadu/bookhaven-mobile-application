@@ -82,7 +82,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
+      backgroundColor: const Color.fromARGB(255, 235, 213, 233),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -111,12 +111,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 16, 76, 125),
+                        color: Color.fromARGB(255, 55, 12, 38),
                       ),
                       textAlign: TextAlign.center,
                     ),
                     Image.asset(
-                      'assets/icons/images/signup_bg.png',
+                      'assets/icons/images/adminlogin.png',
                       height: 200.0,
                     ),
                     const SizedBox(height: 15),
@@ -168,7 +168,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             onPressed: _loginAdmin,
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color.fromARGB(255, 10, 85, 148),
+                                  const Color.fromARGB(255, 113, 10, 148),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 60,
                                 vertical: 15,
@@ -193,7 +193,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       },
                       child: const Text(
                         "Login as a user",
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: Color.fromARGB(255, 152, 60, 164)),
                       ),
                     ),
                   ],

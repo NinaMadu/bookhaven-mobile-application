@@ -75,6 +75,8 @@ flutter:
     - assets/icons/images/profile.png
     - assets/icons/images/admin.png
     - assets/icons/images/admin2.png
+    - assets/icons/images/adminlogin.png
+    - assets/icons/images/adminpw.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

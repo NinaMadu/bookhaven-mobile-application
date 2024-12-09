@@ -99,8 +99,8 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTkU00VfHwpO5cyT8Rax9yU2rJnvZv1s7sr8cqpF-E3bKQ9CBogWnnkdV-cuCoptTIg9U&usqp=CAU',
+                      image: AssetImage(
+                        'assets/icons/images/adminpw.png',
                       ),
                       fit: BoxFit.cover,
                     ),
@@ -112,7 +112,7 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                 'Change Password',
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: const Color.fromARGB(255, 114, 50, 136),
                     ),
               ),
               const SizedBox(height: 30),
@@ -125,7 +125,7 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                       decoration: const InputDecoration(
                         hintText: 'Old Password',
                         filled: true,
-                        fillColor: Color(0xFFF5FCF9),
+                        fillColor: Color.fromARGB(255, 252, 245, 249),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16.0 * 1.5,
                           vertical: 16.0,
@@ -151,7 +151,7 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                       decoration: const InputDecoration(
                         hintText: 'New Password',
                         filled: true,
-                        fillColor: Color(0xFFF5FCF9),
+                        fillColor: Color.fromARGB(255, 252, 245, 249),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16.0 * 1.5,
                           vertical: 16.0,
@@ -177,7 +177,7 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                       decoration: const InputDecoration(
                         hintText: 'Confirm Password',
                         filled: true,
-                        fillColor: Color(0xFFF5FCF9),
+                        fillColor: Color.fromARGB(255, 252, 245, 249),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16.0 * 1.5,
                           vertical: 16.0,
@@ -207,7 +207,7 @@ class _ChangeAdminPasswordPageState extends State<ChangeAdminPasswordPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
-                        backgroundColor: const Color(0xFF0077B5),
+                        backgroundColor: const Color.fromARGB(255, 136, 43, 124),
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 48),
                         shape: const StadiumBorder(),

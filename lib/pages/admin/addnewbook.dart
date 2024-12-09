@@ -164,7 +164,7 @@ class _AddNewBookPageState extends State<AddNewBookPage> {
               ElevatedButton(
                 onPressed: _addBook,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple, // Purple background
+                  backgroundColor: const Color.fromARGB(255, 104, 37, 116), // Purple background
                   foregroundColor: Colors.white, // White text color
                   padding: EdgeInsets.symmetric(
                       vertical: 16), // Optional: Add padding

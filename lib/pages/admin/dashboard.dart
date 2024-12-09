@@ -143,7 +143,7 @@ class AdminDashboard extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(20),
-        backgroundColor: const Color.fromARGB(255, 197, 108, 226),
+        backgroundColor: const Color.fromARGB(255, 233, 199, 245),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -152,11 +152,11 @@ class AdminDashboard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: Colors.white),
+          Icon(icon, size: 40, color: const Color.fromARGB(255, 68, 66, 66)),
           SizedBox(height: 10),
           Text(
             label,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: const Color.fromARGB(255, 68, 66, 66)),
             textAlign: TextAlign.center,
           ),
         ],
