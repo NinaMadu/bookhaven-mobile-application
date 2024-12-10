@@ -54,7 +54,7 @@ class _SignupPageState extends State<SignupPage> {
       await _firestore.collection('users').doc(userId).set(newUser.toMap());
 
       // Navigate to home after successful signup
-      Navigator.pushNamed(context, '/home');
+      Navigator.pushNamed(context, '/login');
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
